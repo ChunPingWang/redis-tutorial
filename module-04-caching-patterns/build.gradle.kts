@@ -9,4 +9,5 @@ dependencies {
     implementation(libs.caffeine)
 
     testImplementation(projects.common)
+    testImplementation(testFixtures(projects.common))
 }
