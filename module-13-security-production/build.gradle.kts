@@ -9,4 +9,5 @@ dependencies {
     implementation(libs.micrometer.registry.prometheus)
 
     testImplementation(projects.common)
+    testImplementation(testFixtures(projects.common))
 }
