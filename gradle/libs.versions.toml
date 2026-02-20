@@ -35,6 +35,7 @@ redisson-spring-boot-starter = { module = "org.redisson:redisson-spring-boot-sta
 # Jackson (version managed by Spring Boot BOM)
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
+jackson-module-parameter-names = { module = "com.fasterxml.jackson.module:jackson-module-parameter-names" }
 
 # Caffeine (multi-level cache)
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }

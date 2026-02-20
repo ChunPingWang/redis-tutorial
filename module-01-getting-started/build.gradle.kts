@@ -7,4 +7,5 @@ dependencies {
     implementation(libs.spring.boot.starter.web)
 
     testImplementation(projects.common)
+    testImplementation(testFixtures(projects.common))
 }

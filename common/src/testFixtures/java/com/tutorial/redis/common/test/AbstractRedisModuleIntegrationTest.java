@@ -8,27 +8,30 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Base class for integration tests that require a lightweight Redis instance.
+ * Base class for integration tests that require a full Redis 8 instance with modules.
  *
- * <p>Uses {@code redis:8-alpine} which provides core Redis functionality
- * without additional modules. Suitable for tests that only need basic
- * Redis data structures and commands.</p>
+ * <p>Uses {@code redis:8} which includes all Redis modules such as
+ * RediSearch, RedisJSON, RedisBloom, and RedisTimeSeries. Suitable for
+ * tests that exercise module-specific commands and functionality.</p>
+ *
+ * <p>Uses the singleton container pattern so the same Redis instance is
+ * shared across all test classes, avoiding Spring context caching issues.</p>
  *
  * <p>The Redis instance is automatically flushed before each test to ensure
  * test isolation.</p>
  */
 @SpringBootTest
-@Testcontainers
-public abstract class AbstractRedisIntegrationTest {
+public abstract class AbstractRedisModuleIntegrationTest {
 
-    @Container
-    static GenericContainer<?> redis = new GenericContainer<>("redis:8-alpine")
+    static final GenericContainer<?> redis = new GenericContainer<>("redis:8")
             .withExposedPorts(6379)
             .waitingFor(Wait.forListeningPort());
+
+    static {
+        redis.start();
+    }
 
     @DynamicPropertySource
     static void redisProperties(DynamicPropertyRegistry registry) {
