@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: module-09-high-availability

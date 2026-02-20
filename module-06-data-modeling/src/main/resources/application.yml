@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: module-06-data-modeling

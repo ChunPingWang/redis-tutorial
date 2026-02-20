@@ -1,0 +1,54 @@
+[versions]
+# Java
+java = "25"
+
+# Spring
+spring-boot = "4.0.2"
+
+# Redis
+lettuce = "6.5.3.RELEASE"
+redis-om-spring = "2.0.1"
+redisson = "4.2.0"
+
+# Testing
+testcontainers = "2.0.3"
+testcontainers-redis = "2.2.4"
+mockito = "5.15.2"
+assertj = "3.27.3"
+
+# Monitoring
+micrometer = "1.15.0"
+
+[libraries]
+# Spring Boot starters
+spring-boot-starter-data-redis = { module = "org.springframework.boot:spring-boot-starter-data-redis" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-cache = { module = "org.springframework.boot:spring-boot-starter-cache" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+
+# Redis clients
+lettuce-core = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
+redis-om-spring = { module = "com.redis.om:redis-om-spring", version.ref = "redis-om-spring" }
+redisson-spring-boot-starter = { module = "org.redisson:redisson-spring-boot-starter", version.ref = "redisson" }
+
+# Jackson (version managed by Spring Boot BOM)
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
+
+# Caffeine (multi-level cache)
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }
+
+# Testing
+spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
+testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "testcontainers" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
+testcontainers-redis = { module = "com.redis:testcontainers-redis", version.ref = "testcontainers-redis" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+
+# Monitoring
+micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

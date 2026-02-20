@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: module-07-streams-events
