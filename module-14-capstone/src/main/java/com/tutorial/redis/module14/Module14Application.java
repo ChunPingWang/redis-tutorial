@@ -3,7 +3,10 @@ package com.tutorial.redis.module14;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.tutorial.redis.module14",
+        "com.tutorial.redis.common"
+})
 public class Module14Application {
     public static void main(String[] args) {
         SpringApplication.run(Module14Application.class, args);
