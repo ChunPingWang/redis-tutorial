@@ -421,52 +421,56 @@ com.tutorial.redis.moduleXX/
 
 ## 模組學習路線
 
-### 基礎篇（Module 01-03）
+### 基礎篇（Module 01-03）— 約 6.5 小時
 
-| 模組 | 主題 | Redis 技術 | 測試數 |
-|------|------|-----------|--------|
-| [Module 01](#module-01-getting-started) | Redis 入門 | String（SET/GET/INCR/TTL） | 15 |
-| [Module 02](#module-02-data-structures) | 核心資料結構 | List / Set / Hash / Sorted Set | 18 |
-| [Module 03](#module-03-specialized-structures) | 特殊資料結構 | HyperLogLog / Geo / Bitmap / Bloom Filter / TimeSeries | 40 |
+| 模組 | 主題 | Redis 技術 | 測試數 | 學習時間 |
+|------|------|-----------|--------|---------|
+| [Module 01](#module-01-getting-started) | Redis 入門 | String（SET/GET/INCR/TTL） | 15 | 1.5 hr |
+| [Module 02](#module-02-data-structures) | 核心資料結構 | List / Set / Hash / Sorted Set | 18 | 2 hr |
+| [Module 03](#module-03-specialized-structures) | 特殊資料結構 | HyperLogLog / Geo / Bitmap / Bloom Filter / TimeSeries | 40 | 3 hr |
 
-### 進階篇（Module 04-06）
+### 進階篇（Module 04-06）— 約 6 小時
 
-| 模組 | 主題 | Redis 技術 | 測試數 |
-|------|------|-----------|--------|
-| [Module 04](#module-04-caching-patterns) | 快取模式 | Cache-Aside / Read-Through / TTL 策略 | 15 |
-| [Module 05](#module-05-pipelining-transactions) | Pipeline 與交易 | Pipeline / MULTI-EXEC / Lua Script | 17 |
-| [Module 06](#module-06-data-modeling) | 資料建模 | 嵌入式 vs 引用式 / 反正規化 / Key 設計 | 15 |
+| 模組 | 主題 | Redis 技術 | 測試數 | 學習時間 |
+|------|------|-----------|--------|---------|
+| [Module 04](#module-04-caching-patterns) | 快取模式 | Cache-Aside / Read-Through / TTL 策略 | 15 | 2 hr |
+| [Module 05](#module-05-pipelining-transactions) | Pipeline 與交易 | Pipeline / MULTI-EXEC / Lua Script | 17 | 2 hr |
+| [Module 06](#module-06-data-modeling) | 資料建模 | 嵌入式 vs 引用式 / 反正規化 / Key 設計 | 15 | 2 hr |
 
-### 應用篇（Module 07-10）
+### 應用篇（Module 07-10）— 約 9.5 小時
 
-| 模組 | 主題 | Redis 技術 | 測試數 |
-|------|------|-----------|--------|
-| [Module 07](#module-07-streams-events) | 串流與事件驅動 | Streams / Consumer Group / XADD / XREADGROUP | 23 |
-| [Module 08](#module-08-persistence) | 持久化 | RDB / AOF / 混合持久化 / RPO-RTO 分析 | 19 |
-| [Module 09](#module-09-high-availability) | 高可用（Sentinel） | Sentinel / 自動故障轉移 / 讀寫分離 | 20 |
-| [Module 10](#module-10-clustering) | 叢集 | Cluster / Hash Slot（CRC16）/ 拓撲規劃 | 21 |
+| 模組 | 主題 | Redis 技術 | 測試數 | 學習時間 |
+|------|------|-----------|--------|---------|
+| [Module 07](#module-07-streams-events) | 串流與事件驅動 | Streams / Consumer Group / XADD / XREADGROUP | 23 | 2.5 hr |
+| [Module 08](#module-08-persistence) | 持久化 | RDB / AOF / 混合持久化 / RPO-RTO 分析 | 19 | 2 hr |
+| [Module 09](#module-09-high-availability) | 高可用（Sentinel） | Sentinel / 自動故障轉移 / 讀寫分離 | 20 | 2.5 hr |
+| [Module 10](#module-10-clustering) | 叢集 | Cluster / Hash Slot（CRC16）/ 拓撲規劃 | 21 | 2.5 hr |
 
-### 專家篇（Module 11-13）
+### 專家篇（Module 11-13）— 約 5.5 小時
 
-| 模組 | 主題 | Redis 技術 | 測試數 |
-|------|------|-----------|--------|
-| [Module 11](#module-11-search-indexing) | 全文搜尋與索引 | RediSearch（FT.CREATE / FT.SEARCH / FT.AGGREGATE） | 15 |
-| [Module 12](#module-12-json-vector-search) | JSON 與向量搜尋 | RedisJSON（JSON.SET/GET）/ Vector Search（KNN） | 15 |
-| [Module 13](#module-13-security-production) | 安全與正式環境 | ACL / SLOWLOG / INFO / 淘汰策略 / 上線檢查清單 | 10 |
+| 模組 | 主題 | Redis 技術 | 測試數 | 學習時間 |
+|------|------|-----------|--------|---------|
+| [Module 11](#module-11-search-indexing) | 全文搜尋與索引 | RediSearch（FT.CREATE / FT.SEARCH / FT.AGGREGATE） | 15 | 2 hr |
+| [Module 12](#module-12-json-vector-search) | JSON 與向量搜尋 | RedisJSON（JSON.SET/GET）/ Vector Search（KNN） | 15 | 2 hr |
+| [Module 13](#module-13-security-production) | 安全與正式環境 | ACL / SLOWLOG / INFO / 淘汰策略 / 上線檢查清單 | 10 | 1.5 hr |
 
-### 總整合（Module 14）
+### 總整合（Module 14）— 約 4 小時
 
-| 模組 | 主題 | Redis 技術 | 測試數 |
-|------|------|-----------|--------|
-| [Module 14](#module-14-capstone) | Capstone 總整合 | **整合以上全部** + 分散式鎖 / 冪等性 / 限流 | 57 |
+| 模組 | 主題 | Redis 技術 | 測試數 | 學習時間 |
+|------|------|-----------|--------|---------|
+| [Module 14](#module-14-capstone) | Capstone 總整合 | **整合以上全部** + 分散式鎖 / 冪等性 / 限流 | 57 | 4 hr |
 
-> **全專案共 444 個測試，涵蓋單元測試、整合測試與 Quiz 測驗。**
+> **全專案共 444 個測試，涵蓋單元測試、整合測試與 Quiz 測驗。預估總學習時間約 31.5 小時。**
+>
+> 學習時間包含閱讀程式碼、執行測試、動手練習 `redis-cli` 指令與完成 Quiz 測驗。實際時間依個人經驗而異，有 Redis 基礎者可適當加速。
 
 ---
 
 ## 各模組詳細說明
 
 ### Module 01: Getting Started
+
+> **預估學習時間：1.5 小時** — 包含環境設定、基本指令練習與 Quiz 測驗
 
 **學習目標**：認識 Redis 基礎操作，使用 String 型別實作帳戶餘額與商品快取。
 
@@ -487,6 +491,8 @@ com.tutorial.redis.moduleXX/
 
 ### Module 02: Data Structures
 
+> **預估學習時間：2 小時** — 四種資料結構各需 30 分鐘實作與練習
+
 **學習目標**：掌握 Redis 四大核心資料結構的操作與應用場景。
 
 ```
@@ -504,6 +510,8 @@ ZSet  — ZADD / ZRANGEBYSCORE / ZRANK / ZINCRBY（排行榜、權重排序）
 ---
 
 ### Module 03: Specialized Structures
+
+> **預估學習時間：3 小時** — 五種特殊結構 + Lua 腳本整合，內容較豐富
 
 **學習目標**：使用 Redis 特殊資料結構解決特定領域問題。
 
@@ -526,6 +534,8 @@ TimeSeries   — TS.CREATE / TS.ADD / TS.RANGE（時序資料，透過 Lua 腳�
 
 ### Module 04: Caching Patterns
 
+> **預估學習時間：2 小時** — 理解快取模式的差異與適用場景是關鍵
+
 **學習目標**：學習業界常見的快取策略，處理快取穿透、擊穿、雪崩等問題。
 
 ```
@@ -544,6 +554,8 @@ TTL 策略      — 固定 / 隨機偏移 / 滑動視窗
 
 ### Module 05: Pipelining & Transactions
 
+> **預估學習時間：2 小時** — Pipeline 與 Lua 腳本需要動手實驗才能深入理解
+
 **學習目標**：使用 Pipeline 批量操作提升效能，使用 MULTI/EXEC 保證原子性，使用 Lua 腳本實現複雜原子操作。
 
 ```
@@ -560,6 +572,8 @@ Lua Script — 伺服器端腳本實現複雜邏輯（Token Bucket 限流）
 ---
 
 ### Module 06: Data Modeling
+
+> **預估學習時間：2 小時** — 建模思維需要搭配實際案例反覆推敲
 
 **學習目標**：學習 Redis 資料建模的最佳實踐。
 
@@ -578,6 +592,8 @@ Key 命名規範      — service:entity:id:field 格式（參見 RedisKeyConven
 ---
 
 ### Module 07: Streams & Event-Driven
+
+> **預估學習時間：2.5 小時** — Consumer Group 機制較複雜，建議搭配 `redis-cli` 逐步操作
 
 **學習目標**：使用 Redis Streams 實作事件驅動架構，理解 Consumer Group 的運作機制。
 
@@ -600,6 +616,8 @@ Consumer Group — 多消費者並行處理 + 訊息重試
 
 ### Module 08: Persistence
 
+> **預估學習時間：2 小時** — 重點在理解 RDB 與 AOF 的取捨及 RPO/RTO 計算
+
 **學習目標**：深入理解 Redis 持久化機制，學會分析 RPO/RTO。
 
 ```
@@ -617,6 +635,8 @@ RPO/RTO 分析   — 根據持久化配置計算資料遺失風險
 ---
 
 ### Module 09: High Availability (Sentinel)
+
+> **預估學習時間：2.5 小時** — 建議啟動 Docker Sentinel 環境實際觀察故障轉移
 
 **學習目標**：使用 Sentinel 實現 Redis 高可用架構，理解自動故障轉移流程。
 
@@ -640,6 +660,8 @@ docker compose -f docker-compose-sentinel.yml up -d
 ---
 
 ### Module 10: Clustering
+
+> **預估學習時間：2.5 小時** — Hash Slot 與叢集拓撲規劃需要時間消化
 
 **學習目標**：理解 Redis Cluster 分片機制，學會 Hash Slot 計算與叢集規劃。
 
@@ -665,6 +687,8 @@ docker compose -f docker-compose-cluster.yml up -d
 
 ### Module 11: Search & Indexing
 
+> **預估學習時間：2 小時** — 索引設計與查詢語法是核心，建議多練習 FT.SEARCH 查詢
+
 **學習目標**：使用 RediSearch 建立全文搜尋引擎，支援索引、查詢、聚合與自動完成。
 
 ```
@@ -686,6 +710,8 @@ FT.SUGGET    — 自動完成建議詞查詢（支援模糊搜尋）
 
 ### Module 12: JSON & Vector Search
 
+> **預估學習時間：2 小時** — JSONPath 語法與向量搜尋概念各需約 1 小時
+
 **學習目標**：使用 RedisJSON 存取結構化文件，使用向量搜尋實現語意查詢。
 
 ```
@@ -705,6 +731,8 @@ Vector Search — KNN 餘弦相似度搜尋（教學用 Java 端實作）
 
 ### Module 13: Security & Production
 
+> **預估學習時間：1.5 小時** — 偏重觀念與檢查清單，適合快速掌握
+
 **學習目標**：Redis 安全配置、監控指標與上線前檢查。
 
 ```
@@ -723,6 +751,8 @@ INFO         — 伺服器狀態監控（memory / stats / clients）
 ---
 
 ### Module 14: Capstone
+
+> **預估學習時間：4 小時** — 整合所有模組知識，含金融與電商兩大子系統 + 80 題認證模擬考
 
 **學習目標**：整合 Module 01-13 的所有知識，建構兩個完整的子系統。
 
