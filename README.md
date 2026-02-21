@@ -27,6 +27,329 @@ java -version    # 需要 25+
 docker --version # 需要 Docker Engine 24+
 ```
 
+## Redis 安裝與環境準備
+
+### 方式一：Docker（推薦）
+
+使用 Docker 是最快速的方式，無需手動安裝 Redis，本專案也以此為主。
+
+```bash
+# 啟動基本 Redis 8（含全部模組）
+docker run -d --name redis -p 6379:6379 redis:8
+
+# 啟動輕量版 Redis（僅基本功能，約 30MB）
+docker run -d --name redis -p 6379:6379 redis:8-alpine
+
+# 驗證 Redis 是否正常運行
+docker exec -it redis redis-cli ping
+# 回傳 PONG 表示正常
+```
+
+> **Docker Image 選擇指南**：
+> - `redis:8` — 完整版，包含 RediSearch、RedisJSON、Bloom Filter、TimeSeries 模組
+> - `redis:8-alpine` — 精簡版，僅含核心功能（String、List、Set、Hash、Sorted Set 等），體積小
+
+本專案提供現成的 Docker Compose 配置，一鍵啟動完整開發環境：
+
+```bash
+# 啟動 Redis + RedisInsight + Prometheus + Grafana
+docker compose up -d
+
+# 查看服務狀態
+docker compose ps
+
+# 停止服務
+docker compose down
+```
+
+### 方式二：macOS 安裝
+
+```bash
+# 使用 Homebrew 安裝
+brew install redis
+
+# 啟動 Redis（前台執行，方便觀察日誌）
+redis-server
+
+# 或以背景服務方式啟動
+brew services start redis
+
+# 停止背景服務
+brew services stop redis
+
+# 驗證
+redis-cli ping
+```
+
+### 方式三：Linux（Ubuntu / Debian）安裝
+
+```bash
+# 添加官方 Redis APT 倉庫
+sudo apt-get update
+sudo apt-get install -y lsb-release curl gpg
+curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+
+# 安裝 Redis
+sudo apt-get update
+sudo apt-get install -y redis
+
+# 啟動服務
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+
+# 驗證
+redis-cli ping
+```
+
+### 方式四：Windows 安裝
+
+Windows 使用者建議透過 WSL2（Windows Subsystem for Linux）安裝：
+
+```powershell
+# 1. 啟用 WSL2（以系統管理員身分執行 PowerShell）
+wsl --install
+
+# 2. 重新啟動電腦後，進入 WSL 的 Ubuntu 環境
+wsl
+
+# 3. 在 WSL 中按照 Linux 步驟安裝 Redis
+```
+
+或直接使用 Docker Desktop for Windows，搭配本專案的 Docker Compose 配置。
+
+### 基本配置說明
+
+Redis 的主要配置檔為 `redis.conf`，以下是常用配置項目：
+
+```conf
+# 綁定位址（預設只允許本機連線）
+bind 127.0.0.1
+
+# 連接埠
+port 6379
+
+# 密碼設定（正式環境必須設定）
+requirepass your-password
+
+# 最大記憶體限制
+maxmemory 256mb
+
+# 記憶體淘汰策略（記憶體不足時如何處理）
+maxmemory-policy allkeys-lru
+
+# 持久化 — RDB 快照
+save 900 1       # 900 秒內至少 1 次寫入時做快照
+save 300 10      # 300 秒內至少 10 次寫入
+save 60 10000    # 60 秒內至少 10000 次寫入
+
+# 持久化 — AOF 日誌
+appendonly yes
+appendfsync everysec
+```
+
+本專案的 Docker 配置檔位於 `docker/redis/redis.conf`，可依需求自行調整。
+
+### 管理工具：RedisInsight
+
+本專案的 Docker Compose 已整合 [RedisInsight](https://redis.io/insight/)，是 Redis 官方推出的 GUI 管理工具：
+
+```bash
+docker compose up -d
+# 啟動後瀏覽器開啟 http://localhost:5540
+```
+
+RedisInsight 提供：
+- **視覺化瀏覽** — 以樹狀結構瀏覽所有 Key
+- **指令行** — 內建 CLI，支援語法提示與自動完成
+- **效能分析** — 即時查看 SLOWLOG 與記憶體使用狀況
+- **Profiler** — 監控即時指令流量
+
+---
+
+## Redis 基本操作概念
+
+### 連線 Redis
+
+```bash
+# 連線本機 Redis
+redis-cli
+
+# 連線遠端 Redis
+redis-cli -h <host> -p <port>
+
+# 帶密碼連線
+redis-cli -h <host> -p <port> -a <password>
+
+# 連線 Docker 容器中的 Redis
+docker exec -it redis redis-cli
+```
+
+### Key-Value 基礎模型
+
+Redis 是一個 **Key-Value 資料庫**，所有資料都以 Key 為索引。Key 是字串，Value 則可以是多種資料型別。
+
+```
+┌──────────────────────────────────────────────────────┐
+│                    Redis Server                       │
+│                                                      │
+│   Key（字串）           Value（多種型別）               │
+│   ─────────────────    ──────────────────────         │
+│   "user:1001:name"  →  "Alice"          (String)     │
+│   "user:1001:score" →  95               (String)     │
+│   "cart:1001"       →  {item1:2,item2:1} (Hash)      │
+│   "recent:views"    →  [p3, p1, p5]      (List)      │
+│   "tags:post:42"    →  {redis,nosql,db}  (Set)       │
+│   "leaderboard"     →  [(Alice,95),(Bob,87)] (ZSet)  │
+│                                                      │
+└──────────────────────────────────────────────────────┘
+```
+
+### Key 命名慣例
+
+良好的 Key 命名對維護性至關重要，本專案採用 `service:entity:id` 格式：
+
+```
+✅ 推薦格式
+  user:1001:name          → 用戶 1001 的名稱
+  product:sku-123:cache   → 商品 SKU-123 的快取
+  order:2024:stream       → 2024 年度訂單串流
+  cart:user:1001          → 用戶 1001 的購物車
+
+❌ 避免的格式
+  u1001                   → 太短，難以理解
+  user_name_1001          → 不符合 Redis 慣例（應用冒號分隔）
+  myapp:data              → 太籠統，無法區分資料內容
+```
+
+### 核心資料型別速覽
+
+| 型別 | 說明 | 常用指令 | 典型場景 |
+|------|------|---------|---------|
+| **String** | 最基本的型別，可存字串、數字、JSON | `SET` `GET` `INCR` `DECR` | 快取、計數器、Session |
+| **List** | 有序的字串鏈結串列 | `LPUSH` `RPUSH` `LRANGE` `BLPOP` | 訊息佇列、最近瀏覽 |
+| **Set** | 無序且不重複的字串集合 | `SADD` `SMEMBERS` `SINTER` | 標籤、共同好友 |
+| **Hash** | 欄位-值對的集合（類似物件） | `HSET` `HGET` `HGETALL` | 物件存取、購物車 |
+| **Sorted Set** | 帶分數的有序集合 | `ZADD` `ZRANGE` `ZRANK` | 排行榜、優先佇列 |
+| **Stream** | 追加式的日誌資料結構 | `XADD` `XREAD` `XREADGROUP` | 事件驅動、訊息串流 |
+| **HyperLogLog** | 基數估計（不重複計數） | `PFADD` `PFCOUNT` | UV 統計 |
+| **Geo** | 地理空間索引 | `GEOADD` `GEOSEARCH` | 附近搜尋 |
+| **Bitmap** | 位元操作 | `SETBIT` `GETBIT` `BITCOUNT` | 簽到、活躍追蹤 |
+
+### 基本 CRUD 操作示範
+
+```bash
+# === String 型別 ===
+
+# 設定值
+SET user:1001:name "Alice"
+
+# 取得值
+GET user:1001:name
+# "Alice"
+
+# 設定值並指定過期時間（60 秒後自動刪除）
+SET session:abc123 "user-data" EX 60
+
+# 數值遞增（原子操作，適合計數器）
+SET page:views 0
+INCR page:views       # 1
+INCR page:views       # 2
+INCRBY page:views 10  # 12
+
+# === Key 管理 ===
+
+# 查看 Key 是否存在
+EXISTS user:1001:name  # 1（存在）
+
+# 設定過期時間（秒）
+EXPIRE user:1001:name 3600  # 1 小時後過期
+
+# 查看剩餘存活時間
+TTL user:1001:name     # 剩餘秒數，-1 表示永不過期，-2 表示已過期
+
+# 刪除 Key
+DEL user:1001:name
+
+# 查詢符合模式的 Key（僅限開發環境，正式環境應使用 SCAN）
+KEYS user:*
+
+# === Hash 型別 ===
+
+# 設定 Hash 欄位
+HSET cart:1001 item-a 2 item-b 1
+
+# 取得單一欄位
+HGET cart:1001 item-a
+# "2"
+
+# 取得所有欄位與值
+HGETALL cart:1001
+# "item-a" "2" "item-b" "1"
+
+# 欄位值遞增
+HINCRBY cart:1001 item-a 3  # item-a 數量變為 5
+
+# === List 型別 ===
+
+# 從左側推入
+LPUSH recent:user:1001 "product-5" "product-3" "product-1"
+
+# 取得範圍（0 到 -1 表示全部）
+LRANGE recent:user:1001 0 -1
+# "product-1" "product-3" "product-5"
+
+# === Sorted Set 型別 ===
+
+# 新增成員與分數
+ZADD leaderboard 95 "Alice" 87 "Bob" 92 "Charlie"
+
+# 按分數從高到低取前 3 名（附帶分數）
+ZREVRANGE leaderboard 0 2 WITHSCORES
+# "Alice" "95" "Charlie" "92" "Bob" "87"
+```
+
+### TTL（Time To Live）過期機制
+
+Redis 支援為 Key 設定存活時間，過期後自動刪除，是實現快取的關鍵機制：
+
+```bash
+# 設定時同時指定 TTL
+SET cache:product:1001 "{...}" EX 300   # 300 秒（5 分鐘）
+SET cache:session:abc  "{...}" PX 30000 # 30000 毫秒（30 秒）
+
+# 對已存在的 Key 設定 TTL
+EXPIRE cache:product:1001 600  # 重設為 600 秒
+PEXPIRE cache:product:1001 600000  # 毫秒精度
+
+# 查看剩餘時間
+TTL cache:product:1001    # 回傳秒數
+PTTL cache:product:1001   # 回傳毫秒數
+
+# 移除 TTL（變為永不過期）
+PERSIST cache:product:1001
+```
+
+> **注意**：TTL 的設計直接影響快取命中率與記憶體使用量。太短會頻繁回源（cache miss），太長可能導致資料過時。Module 04 會深入探討各種 TTL 策略。
+
+### 原子性與單執行緒模型
+
+Redis 使用**單執行緒**處理所有指令，這代表：
+
+1. **每個指令都是原子的** — `INCR`、`LPUSH`、`SETNX` 等操作不需要額外的鎖機制
+2. **無競態條件** — 不會出現兩個指令同時修改同一個 Key 的情況
+3. **指令依序執行** — 所有 Client 的指令排隊依序處理
+
+```
+Client A: INCR counter  ──┐
+Client B: INCR counter  ──┼──→ [Redis 指令佇列] ──→ 依序執行
+Client C: GET counter   ──┘
+```
+
+> **為什麼單執行緒還這麼快？** Redis 將資料存放在記憶體中，避免了磁碟 I/O 的瓶頸。加上使用 I/O 多路複用（epoll / kqueue）處理網路連線，單執行緒即可達到每秒十萬級別的吞吐量。
+
+---
+
 ## 快速開始
 
 ```bash
