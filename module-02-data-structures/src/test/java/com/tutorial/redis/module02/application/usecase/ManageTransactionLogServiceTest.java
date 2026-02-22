@@ -18,6 +18,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 交易記錄管理 Use Case 單元測試
+ * 驗證 ManageTransactionLogService 正確委派操作至 TransactionLogPort（Redis List）。
+ * 包含 LPUSH 新增交易與 LTRIM 裁剪日誌的組合邏輯。
+ * 層級：Application（Use Case 業務邏輯）
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ManageTransactionLogService 單元測試")
 class ManageTransactionLogServiceTest {
@@ -33,6 +39,7 @@ class ManageTransactionLogServiceTest {
                 TransactionType.DEPOSIT, Instant.now(), "Test");
     }
 
+    // 驗證記錄交易時依序呼叫 addTransaction（LPUSH）與 trimToSize（LTRIM）
     @Test
     @DisplayName("recordTransaction_AddsAndTrims — 新增交易後裁剪至 MAX_LOG_SIZE")
     void recordTransaction_AddsAndTrims() {
@@ -44,6 +51,7 @@ class ManageTransactionLogServiceTest {
         verify(transactionLogPort).trimToSize("ACC-001", ManageTransactionLogService.MAX_LOG_SIZE);
     }
 
+    // 驗證取得最近交易時正確委派至 Port 的 getRecentTransactions
     @Test
     @DisplayName("getRecentTransactions_DelegatesToPort — 委派至 Port 的 getRecentTransactions 方法")
     void getRecentTransactions_DelegatesToPort() {
@@ -58,6 +66,7 @@ class ManageTransactionLogServiceTest {
         verify(transactionLogPort).getRecentTransactions("ACC-001", 10);
     }
 
+    // 驗證查詢交易筆數時正確委派至 Port 的 getTransactionCount
     @Test
     @DisplayName("getTransactionCount_DelegatesToPort — 委派至 Port 的 getTransactionCount 方法")
     void getTransactionCount_DelegatesToPort() {

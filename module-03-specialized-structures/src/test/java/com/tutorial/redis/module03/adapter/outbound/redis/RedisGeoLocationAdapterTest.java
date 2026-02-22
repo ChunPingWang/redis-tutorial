@@ -13,12 +13,18 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Redis Geospatial 配接器整合測試
+ * 驗證 GeoLocationPort 透過 Redis Geo（GEOADD/GEOPOS/GEODIST/GEOSEARCH）命令的實作正確性
+ * 涵蓋新增位置、距離計算、範圍搜尋與成員搜尋，屬於 Adapter 層（外部輸出端）
+ */
 @DisplayName("RedisGeoLocationAdapter 整合測試")
 class RedisGeoLocationAdapterTest extends AbstractRedisModuleIntegrationTest {
 
     @Autowired
     private GeoLocationPort geoLocationPort;
 
+    // 驗證 GEOADD 新增門市位置後，可透過 GEOPOS 取得經緯度
     @Test
     @DisplayName("addLocation_WhenValidStore_StoresInGeoSet — 新增有效門市至 Geo 集合")
     void addLocation_WhenValidStore_StoresInGeoSet() {
@@ -33,6 +39,7 @@ class RedisGeoLocationAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(result.get().getLatitude()).isCloseTo(25.0330, org.assertj.core.data.Offset.offset(0.001));
     }
 
+    // 驗證 GEODIST 計算兩個門市之間的距離（公里）
     @Test
     @DisplayName("getDistance_BetweenTwoStores_ReturnsKilometers — 計算兩門市距離約 5 公里")
     void getDistance_BetweenTwoStores_ReturnsKilometers() {
@@ -47,6 +54,7 @@ class RedisGeoLocationAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(distance.get()).isGreaterThan(0);
     }
 
+    // 驗證 GEOSEARCH 以座標為中心在指定半徑內搜尋門市
     @Test
     @DisplayName("searchNearby_WhenStoresInRadius_ReturnsStores — 搜尋半徑內的門市")
     void searchNearby_WhenStoresInRadius_ReturnsStores() {
@@ -67,6 +75,7 @@ class RedisGeoLocationAdapterTest extends AbstractRedisModuleIntegrationTest {
         results.forEach(r -> assertThat(r.getDistance()).isGreaterThanOrEqualTo(0));
     }
 
+    // 驗證搜尋範圍內無門市時回傳空列表
     @Test
     @DisplayName("searchNearby_WhenNoStoresInRadius_ReturnsEmpty — 遠距搜尋回傳空結果")
     void searchNearby_WhenNoStoresInRadius_ReturnsEmpty() {
@@ -79,6 +88,7 @@ class RedisGeoLocationAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(results).isEmpty();
     }
 
+    // 驗證查詢不存在的門市 ID 時回傳 Optional.empty()
     @Test
     @DisplayName("getPosition_WhenStoreNotExists_ReturnsEmpty — 查詢不存在的門市回傳空")
     void getPosition_WhenStoreNotExists_ReturnsEmpty() {
@@ -87,6 +97,7 @@ class RedisGeoLocationAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(result).isEmpty();
     }
 
+    // 驗證 GEOSEARCHBYMEMBER 以現有門市為中心搜尋附近其他門市
     @Test
     @DisplayName("searchNearbyByMember_WhenMemberExists_ReturnsNearbyStores — 以門市為中心搜尋附近門市")
     void searchNearbyByMember_WhenMemberExists_ReturnsNearbyStores() {

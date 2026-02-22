@@ -14,6 +14,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 測試 Module 10 的隨堂測驗功能。
+ * 驗證 Redis Cluster 相關知識點：Hash Slot、CRC16、Hash Tag、MOVED/ASK 重定向、Gossip 協議等。
+ * 本測試類別不屬於特定架構層，而是驗證整體模組的學習成果評量機制。
+ */
 @DisplayName("Module 10 Quiz — Redis Cluster 與水平擴展")
 class Module10QuizTest {
 
@@ -79,6 +84,7 @@ class Module10QuizTest {
         );
     }
 
+    // 驗證所有 10 題全部答對時，測驗結果為通過且得分為滿分 (1.0)
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -104,6 +110,7 @@ class Module10QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(10);
     }
 
+    // 驗證答對 8 題 (80%) 時，測驗結果仍為通過（及格門檻為 80%）
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 8/10 正確")
     void quiz_PassesAt80Percent() {
@@ -129,6 +136,7 @@ class Module10QuizTest {
         assertThat(result.score()).isEqualTo(8.0 / 10.0);
     }
 
+    // 驗證答對 7 題 (70%) 時，測驗結果為不通過（低於 80% 及格門檻）
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 7/10 正確")
     void quiz_FailsBelow80Percent() {

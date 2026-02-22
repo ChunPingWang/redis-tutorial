@@ -18,6 +18,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * CartService 應用層單元測試類別。
+ * 驗證購物車服務的新增品項與取得品項邏輯，使用 Mock 隔離 Redis 依賴。
+ * 展示六角形架構中 application usecase 層透過 Port 介面與 adapter 解耦。
+ * 所屬：電商子系統 — application 層
+ */
 @DisplayName("CartService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
@@ -28,6 +34,7 @@ class CartServiceTest {
     @InjectMocks
     private CartService cartService;
 
+    // 驗證新增購物車品項時，服務層正確委派給 CartPort 並傳入正確的 Key 與資料
     @Test
     @DisplayName("addToCart_DelegatesToPort — 新增購物車品項應委派給 CartPort")
     void addToCart_DelegatesToPort() {
@@ -41,6 +48,7 @@ class CartServiceTest {
         verify(cartPort).addItem(eq("ecommerce:cart:customer-1"), eq("p1"), anyString());
     }
 
+    // 驗證從 CartPort 取得原始資料後，服務層能正確解析為 CartItem 領域物件
     @Test
     @DisplayName("getCart_ParsesItemsFromPort — 從 CartPort 取得並解析購物車品項")
     void getCart_ParsesItemsFromPort() {

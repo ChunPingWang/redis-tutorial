@@ -14,6 +14,12 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 商品快取 Adapter 整合測試
+ * 驗證 RedisProductCacheAdapter 對商品資料的 Redis 快取操作，
+ * 涵蓋單筆與批次查詢（MGET）、TTL 過期機制與 Key 命名慣例。
+ * 層級：Adapter（外部端口實作）
+ */
 @DisplayName("RedisProductCacheAdapter 整合測試")
 class RedisProductCacheAdapterTest extends AbstractRedisIntegrationTest {
 
@@ -24,6 +30,7 @@ class RedisProductCacheAdapterTest extends AbstractRedisIntegrationTest {
         return new Product(id, "Test Product", new BigDecimal("29.99"), "Electronics", 100);
     }
 
+    // 驗證儲存商品後能成功從 Redis 讀取
     @Test
     @DisplayName("save_WhenValidProduct_StoresInRedis")
     void save_WhenValidProduct_StoresInRedis() {
@@ -34,6 +41,7 @@ class RedisProductCacheAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(productCachePort.findById("PROD-001")).isPresent();
     }
 
+    // 驗證以 ID 查詢已快取商品時，回傳完整商品資料
     @Test
     @DisplayName("findById_WhenProductExists_ReturnsProduct")
     void findById_WhenProductExists_ReturnsProduct() {
@@ -48,12 +56,14 @@ class RedisProductCacheAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(found.get().getPrice()).isEqualByComparingTo(new BigDecimal("29.99"));
     }
 
+    // 驗證查詢不存在的商品時回傳空值
     @Test
     @DisplayName("findById_WhenProductNotExists_ReturnsEmpty")
     void findById_WhenProductNotExists_ReturnsEmpty() {
         assertThat(productCachePort.findById("NON-EXISTENT")).isEmpty();
     }
 
+    // 驗證刪除已快取商品後，該筆資料從 Redis 中移除
     @Test
     @DisplayName("evict_WhenProductExists_RemovesFromRedis")
     void evict_WhenProductExists_RemovesFromRedis() {
@@ -65,6 +75,7 @@ class RedisProductCacheAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(productCachePort.findById("PROD-003")).isEmpty();
     }
 
+    // 驗證批次查詢多筆已快取商品時，全部正確回傳
     @Test
     @DisplayName("findByIds_WhenMultipleProductsCached_ReturnsAll")
     void findByIds_WhenMultipleProductsCached_ReturnsAll() {
@@ -80,6 +91,7 @@ class RedisProductCacheAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(found).hasSize(3);
     }
 
+    // 驗證批次查詢時僅回傳已快取的商品，忽略不存在的 Key
     @Test
     @DisplayName("findByIds_WhenSomeNotCached_ReturnsOnlyCached")
     void findByIds_WhenSomeNotCached_ReturnsOnlyCached() {
@@ -92,6 +104,7 @@ class RedisProductCacheAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(found.getFirst().getProductId()).isEqualTo("PROD-020");
     }
 
+    // 驗證 Redis Key 遵循「ecommerce:product:{id}」命名慣例
     @Test
     @DisplayName("save_KeyFollowsNamingConvention")
     void save_KeyFollowsNamingConvention() {
@@ -103,6 +116,7 @@ class RedisProductCacheAdapterTest extends AbstractRedisIntegrationTest {
                 .hasSize(1);
     }
 
+    // 驗證 TTL 過期後商品自動從 Redis 移除
     @Test
     @DisplayName("save_WhenTTLExpires_ProductIsEvicted")
     void save_WhenTTLExpires_ProductIsEvicted() throws InterruptedException {

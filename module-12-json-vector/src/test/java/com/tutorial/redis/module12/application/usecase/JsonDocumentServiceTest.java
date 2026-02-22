@@ -12,6 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
+/**
+ * JsonDocumentService 單元測試，驗證 Application 層的 JSON 文件業務邏輯。
+ * 使用 Mock 確認 Service 正確委派 RedisJSON 操作（如 JSON.SET 設定路徑值、
+ * 刪除文件等）給底層的 JsonDocumentPort。
+ * 屬於 Application（應用服務）層的測試。
+ */
 @DisplayName("JsonDocumentService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class JsonDocumentServiceTest {
@@ -25,6 +31,7 @@ class JsonDocumentServiceTest {
     @InjectMocks
     private JsonDocumentService service;
 
+    // 驗證刪除商品時，Service 正確委派給 Port 並帶入正確的 key
     @Test
     @DisplayName("deleteProduct_DelegatesToPort — 刪除商品應委派給 JsonDocumentPort.deleteDocument")
     void deleteProduct_DelegatesToPort() {
@@ -35,6 +42,7 @@ class JsonDocumentServiceTest {
         verify(jsonDocumentPort).deleteDocument("product:P001");
     }
 
+    // 驗證更新價格時，Service 透過 JSON.SET 設定 $.price 路徑的值
     @Test
     @DisplayName("updatePrice_CallsSetDocument — 更新價格應呼叫 setDocument 設定 $.price")
     void updatePrice_CallsSetDocument() {

@@ -9,12 +9,19 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * RedisTransactionRankingAdapter 整合測試類別。
+ * 驗證使用 Redis Sorted Set 實作交易金額排行榜的功能。
+ * 展示 ZADD/ZREVRANGE 在金融交易排名場景的應用。
+ * 所屬：金融子系統 — adapter 層
+ */
 @DisplayName("RedisTransactionRankingAdapter 整合測試")
 class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisTransactionRankingAdapter adapter;
 
+    // 驗證加入多筆不同金額的交易後，取得 Top N 應按金額由高到低排序
     @Test
     @DisplayName("addAndGetTop_ReturnsHighestAmounts — 加入多筆交易後取得 Top N 應回傳金額最高者")
     void addAndGetTop_ReturnsHighestAmounts() {

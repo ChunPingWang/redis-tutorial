@@ -13,6 +13,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 驗證 Module 07 的測驗問答邏輯，涵蓋 Redis Streams 核心觀念。
+ * 測驗涵蓋 XADD、XREAD、XREADGROUP、XACK、Consumer Group、
+ * Event Sourcing 以及 Pub/Sub 與 Streams 的比較等知識點。
+ * 所屬層級：無特定層級（跨領域知識測驗）
+ */
 @DisplayName("Module 07 Quiz — Redis Streams 與事件驅動")
 class Module07QuizTest {
 
@@ -123,6 +129,7 @@ class Module07QuizTest {
             )
     );
 
+    // 驗證 10 題全部答對時，測驗結果為通過且分數為滿分
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -145,6 +152,7 @@ class Module07QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(10);
     }
 
+    // 驗證答對 8/10 題（80%）時，測驗結果仍為通過
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 8/10 正確")
     void quiz_PassesAt80Percent() {
@@ -167,6 +175,7 @@ class Module07QuizTest {
         assertThat(result.score()).isEqualTo(8.0 / 10.0);
     }
 
+    // 驗證答對 7/10 題（70%）時，低於 80% 門檻，測驗結果為不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 7/10 正確")
     void quiz_FailsBelow80Percent() {

@@ -14,6 +14,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 商品標籤管理 Use Case 單元測試
+ * 驗證 ManageProductTagService 正確委派操作至 ProductTagPort（Redis Set）。
+ * 層級：Application（Use Case 業務邏輯）
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ManageProductTagService 單元測試")
 class ManageProductTagServiceTest {
@@ -24,6 +29,7 @@ class ManageProductTagServiceTest {
     @InjectMocks
     private ManageProductTagService service;
 
+    // 驗證新增標籤時正確委派至 Port 的 addTags
     @Test
     @DisplayName("tagProduct_DelegatesToPort — 委派至 Port 的 addTags 方法")
     void tagProduct_DelegatesToPort() {
@@ -34,6 +40,7 @@ class ManageProductTagServiceTest {
         verify(productTagPort).addTags("PROD-001", tags);
     }
 
+    // 驗證移除標籤時正確委派至 Port 的 removeTags
     @Test
     @DisplayName("untagProduct_DelegatesToPort — 委派至 Port 的 removeTags 方法")
     void untagProduct_DelegatesToPort() {
@@ -44,6 +51,7 @@ class ManageProductTagServiceTest {
         verify(productTagPort).removeTags("PROD-001", tags);
     }
 
+    // 驗證取得標籤時正確委派至 Port 的 getTags，並回傳結果
     @Test
     @DisplayName("getProductTags_DelegatesToPort — 委派至 Port 的 getTags 方法")
     void getProductTags_DelegatesToPort() {
@@ -55,6 +63,7 @@ class ManageProductTagServiceTest {
         verify(productTagPort).getTags("PROD-001");
     }
 
+    // 驗證查詢共同標籤時正確委派至 Port 的 getCommonTags
     @Test
     @DisplayName("findCommonTags_DelegatesToPort — 委派至 Port 的 getCommonTags 方法")
     void findCommonTags_DelegatesToPort() {

@@ -18,6 +18,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * VectorSearchService 單元測試，驗證 Application 層的向量搜尋業務邏輯。
+ * 使用 Mock 確認 Service 正確委派向量儲存與 KNN 搜尋操作給 VectorSearchPort，
+ * 並驗證搜尋結果的正確傳遞。
+ * 屬於 Application（應用服務）層的測試。
+ */
 @DisplayName("VectorSearchService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class VectorSearchServiceTest {
@@ -28,6 +34,7 @@ class VectorSearchServiceTest {
     @InjectMocks
     private VectorSearchService service;
 
+    // 驗證儲存商品向量時，Service 正確委派給 VectorSearchPort
     @Test
     @DisplayName("storeProductVector_DelegatesToPort — 儲存商品向量應委派給 VectorSearchPort")
     void storeProductVector_DelegatesToPort() {
@@ -41,6 +48,7 @@ class VectorSearchServiceTest {
         verify(vectorSearchPort).storeVector(contains("P001"), eq("embedding"), eq(embedding));
     }
 
+    // 驗證搜尋相似商品時，Service 委派 KNN 搜尋並正確回傳結果
     @Test
     @DisplayName("searchSimilarProducts_DelegatesToPort — 搜尋相似商品應委派給 VectorSearchPort.knnSearch")
     void searchSimilarProducts_DelegatesToPort() {

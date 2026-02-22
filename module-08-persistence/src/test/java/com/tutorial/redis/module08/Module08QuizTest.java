@@ -14,6 +14,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 測試 Module 08 的隨堂測驗，驗證學員對 Redis 持久化概念的理解。
+ * 涵蓋 RDB 快照、AOF 日誌、Hybrid 混合持久化及 RPO/RTO 相關知識。
+ * 屬於模組層級的整合測驗測試。
+ */
 @DisplayName("Module 08 Quiz — Redis 持久化策略")
 class Module08QuizTest {
 
@@ -69,6 +74,7 @@ class Module08QuizTest {
         );
     }
 
+    // 驗證全部答對時，測驗結果為通過且分數為滿分
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -92,6 +98,7 @@ class Module08QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(8);
     }
 
+    // 驗證答對 7/8 題（87.5%）時，仍可達到 80% 通過門檻
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 7/8 正確")
     void quiz_PassesAt80Percent() {
@@ -115,6 +122,7 @@ class Module08QuizTest {
         assertThat(result.score()).isEqualTo(7.0 / 8.0);
     }
 
+    // 驗證答對 6/8 題（75%）時，未達 80% 門檻應判定為不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 6/8 正確")
     void quiz_FailsBelow80Percent() {

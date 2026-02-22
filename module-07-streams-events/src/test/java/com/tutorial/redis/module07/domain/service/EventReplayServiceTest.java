@@ -13,11 +13,18 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * 驗證 EventReplayService 的事件重播邏輯。
+ * 測試將一系列帳戶事件依序重播後，能正確重建最終的帳戶狀態，
+ * 此為 Event Sourcing 模式中從 Redis Stream 讀取事件後重建狀態的核心服務。
+ * 所屬層級：Domain 層（領域服務單元測試）
+ */
 @DisplayName("EventReplayService 領域服務測試")
 class EventReplayServiceTest {
 
     private final EventReplayService service = new EventReplayService();
 
+    // 驗證依序重播多筆事件（開戶、存款、提款、存款）後，最終狀態的餘額與事件計數正確
     @Test
     @DisplayName("replay_MultipleEvents_ReturnsCorrectFinalState — 重播開戶、存款 500、提款 200、存款 100，最終餘額應為 400")
     void replay_MultipleEvents_ReturnsCorrectFinalState() {
@@ -42,6 +49,7 @@ class EventReplayServiceTest {
         assertThat(state.getEventCount()).isEqualTo(4);
     }
 
+    // 驗證傳入空的事件列表時，拋出 IllegalArgumentException 防止無效重播
     @Test
     @DisplayName("replay_EmptyEvents_ThrowsIAE — 空事件列表應拋出 IllegalArgumentException")
     void replay_EmptyEvents_ThrowsIAE() {

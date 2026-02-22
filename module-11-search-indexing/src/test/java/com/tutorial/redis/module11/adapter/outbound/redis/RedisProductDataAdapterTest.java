@@ -12,6 +12,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 驗證 RedisProductDataAdapter 將商品資料儲存為 Redis Hash 的功能。
+ * 商品以 Hash 結構儲存是 RediSearch FT.CREATE 建立索引的前提（索引基於 Hash key 前綴）。
+ * 此測試屬於適配器層 (adapter)，確認單筆與批次儲存商品的 Hash 欄位正確性。
+ */
 @DisplayName("RedisProductDataAdapter 整合測試")
 class RedisProductDataAdapterTest extends AbstractRedisModuleIntegrationTest {
 
@@ -21,6 +26,7 @@ class RedisProductDataAdapterTest extends AbstractRedisModuleIntegrationTest {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    // 驗證單筆商品儲存後，Redis Hash 中的所有欄位（name, description, category, price, brand）皆正確
     @Test
     @DisplayName("saveProduct_StoresAsHash — 儲存商品後，Redis Hash 應包含所有欄位")
     void saveProduct_StoresAsHash() {
@@ -42,6 +48,7 @@ class RedisProductDataAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(entries.get("brand")).isEqualTo("Sony");
     }
 
+    // 驗證批次儲存 3 筆商品後，每筆 Hash key 皆存在且各欄位值正確
     @Test
     @DisplayName("saveProducts_StoresMultiple — 批次儲存 3 筆商品，應全部存在")
     void saveProducts_StoresMultiple() {

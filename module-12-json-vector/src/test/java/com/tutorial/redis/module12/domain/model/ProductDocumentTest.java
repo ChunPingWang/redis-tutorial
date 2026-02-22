@@ -7,9 +7,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * ProductDocument 領域模型測試，驗證商品文件的資料結構與存取正確性。
+ * 此模型對應 RedisJSON 中儲存的巢狀 JSON 文件結構，
+ * 包含商品變體（variants）與評論摘要（reviews）等子物件。
+ * 屬於 Domain（領域模型）層的測試。
+ */
 @DisplayName("ProductDocument 領域模型測試")
 class ProductDocumentTest {
 
+    // 驗證透過建構子建立含變體與評論的商品文件，所有欄位應正確設定
     @Test
     @DisplayName("constructor_WithVariants_ReturnsCorrectData — 含變體的商品文件應正確建立")
     void constructor_WithVariants_ReturnsCorrectData() {
@@ -43,6 +50,7 @@ class ProductDocumentTest {
         assertThat(product.getReviews().getCount()).isEqualTo(120);
     }
 
+    // 驗證透過 setter 設定變體列表後，能正確透過 getter 存取
     @Test
     @DisplayName("variants_AreAccessible — 變體列表應可存取")
     void variants_AreAccessible() {

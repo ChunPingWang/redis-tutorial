@@ -16,6 +16,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 測試 SecurityInfoService 的應用層邏輯（Application 層）。
+ * 驗證安全資訊服務能正確列出 Redis 淘汰策略（Eviction Policy）
+ * 及透過 SecurityInfoPort 委派查詢 ACL 用戶清單的功能。
+ * 屬於六角形架構的 Application（Use Case）層。
+ */
 @DisplayName("SecurityInfoService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class SecurityInfoServiceTest {
@@ -26,6 +32,7 @@ class SecurityInfoServiceTest {
     @InjectMocks
     private SecurityInfoService service;
 
+    // 驗證列出所有 Redis 淘汰策略時，應回傳完整的 8 種策略
     @Test
     @DisplayName("listEvictionPolicies_ReturnsEightPolicies — 列出淘汰策略應回傳 8 種")
     void listEvictionPolicies_ReturnsEightPolicies() {
@@ -36,6 +43,7 @@ class SecurityInfoServiceTest {
         assertThat(policies).hasSize(8);
     }
 
+    // 驗證 listAclUsers() 正確委派給 SecurityInfoPort，並回傳包含 default 用戶的清單
     @Test
     @DisplayName("listAclUsers_DelegatesToPort — 列出 ACL 用戶應委派給 SecurityInfoPort")
     void listAclUsers_DelegatesToPort() {

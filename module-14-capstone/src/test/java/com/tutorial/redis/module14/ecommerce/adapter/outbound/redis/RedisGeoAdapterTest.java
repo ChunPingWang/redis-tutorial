@@ -9,12 +9,19 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * RedisGeoAdapter 整合測試類別。
+ * 驗證使用 Redis GEO 資料結構進行地理位置新增與附近搜尋功能。
+ * 展示 GEOADD/GEORADIUS 在電商門市定位場景的應用。
+ * 所屬：電商子系統 — adapter 層
+ */
 @DisplayName("RedisGeoAdapter 整合測試")
 class RedisGeoAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisGeoAdapter adapter;
 
+    // 驗證新增多個地理位置後，以指定座標搜尋附近門市僅回傳半徑範圍內的結果
     @Test
     @DisplayName("addAndFindNearby_ReturnsStoresWithinRadius — 新增位置後搜尋附近應回傳範圍內的門市")
     void addAndFindNearby_ReturnsStoresWithinRadius() {

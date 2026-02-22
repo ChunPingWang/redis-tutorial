@@ -16,6 +16,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 排行榜管理 Use Case 單元測試
+ * 驗證 ManageRankingService 正確委派操作至 TransactionRankingPort（Redis Sorted Set）。
+ * 層級：Application（Use Case 業務邏輯）
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ManageRankingService 單元測試")
 class ManageRankingServiceTest {
@@ -26,6 +31,7 @@ class ManageRankingServiceTest {
     @InjectMocks
     private ManageRankingService service;
 
+    // 驗證提交分數時正確委派至 Port 的 addOrUpdate
     @Test
     @DisplayName("submitScore_DelegatesToPort — 委派至 Port 的 addOrUpdate 方法")
     void submitScore_DelegatesToPort() {
@@ -34,6 +40,7 @@ class ManageRankingServiceTest {
         verify(transactionRankingPort).addOrUpdate("leaderboard", "user-001", 100.0);
     }
 
+    // 驗證取得排行榜時正確委派至 Port 的 getTopN，並回傳排序結果
     @Test
     @DisplayName("getLeaderboard_DelegatesToPort — 委派至 Port 的 getTopN 方法")
     void getLeaderboard_DelegatesToPort() {
@@ -50,6 +57,7 @@ class ManageRankingServiceTest {
         verify(transactionRankingPort).getTopN("leaderboard", 2);
     }
 
+    // 驗證組合 ZREVRANK 與 ZSCORE 結果，回傳含排名與分數的 RankEntry
     @Test
     @DisplayName("getMemberRank_ReturnsRankEntry — 組合 reverseRank 與 score 回傳 RankEntry")
     void getMemberRank_ReturnsRankEntry() {

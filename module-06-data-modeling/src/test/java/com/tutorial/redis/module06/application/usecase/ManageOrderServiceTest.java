@@ -16,6 +16,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * 測試 ManageOrderService 的應用層業務邏輯。
+ * 使用 Mockito 模擬 OrderDaoPort，驗證訂單建立、客戶查詢、時間範圍查詢的委派行為。
+ * 屬於 Application 層（用例層），確認業務操作與 Redis 資料存取的解耦。
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ManageOrderService 單元測試")
 class ManageOrderServiceTest {
@@ -26,6 +31,7 @@ class ManageOrderServiceTest {
     @InjectMocks
     private ManageOrderService service;
 
+    // 驗證建立訂單時，Service 委派呼叫 OrderDaoPort.save 一次
     @Test
     @DisplayName("createOrder_DelegatesToPort — 建立訂單應委派給 OrderDaoPort.save")
     void createOrder_DelegatesToPort() {
@@ -40,6 +46,7 @@ class ManageOrderServiceTest {
         verify(orderDaoPort, times(1)).save(order);
     }
 
+    // 驗證依客戶 ID 查詢訂單時，Service 委派呼叫 OrderDaoPort.findByCustomerId
     @Test
     @DisplayName("findByCustomer_DelegatesToPort — 依客戶查詢應委派給 OrderDaoPort.findByCustomerId")
     void findByCustomer_DelegatesToPort() {
@@ -61,6 +68,7 @@ class ManageOrderServiceTest {
         verify(orderDaoPort, times(1)).findByCustomerId("cust-A");
     }
 
+    // 驗證依時間範圍查詢訂單時，Service 委派呼叫 OrderDaoPort.findByCreatedAtRange
     @Test
     @DisplayName("findByTimeRange_DelegatesToPort — 依時間範圍查詢應委派給 OrderDaoPort.findByCreatedAtRange")
     void findByTimeRange_DelegatesToPort() {

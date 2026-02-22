@@ -14,6 +14,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * 測試 DataRecoveryService 的資料恢復模擬邏輯。
+ * 驗證 Application 層的用例服務能正確委派寫入與計數操作，並計算資料遺失率。
+ * 屬於 Application 層（用例層），使用 Mock 隔離對 Adapter 層的依賴。
+ */
 @DisplayName("DataRecoveryService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class DataRecoveryServiceTest {
@@ -24,6 +29,7 @@ class DataRecoveryServiceTest {
     @InjectMocks
     private DataRecoveryService service;
 
+    // 驗證模擬恢復流程：寫入測試資料後計數，完全恢復時資料遺失率應為 0%
     @Test
     @DisplayName("simulateRecovery_WritesAndCountsData — 模擬恢復應寫入資料並計數驗證")
     void simulateRecovery_WritesAndCountsData() {

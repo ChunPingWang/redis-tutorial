@@ -14,6 +14,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Module 09 測驗測試類別
+ * 驗證 Redis 高可用架構相關知識，涵蓋主從複製、Sentinel 哨兵機制、故障轉移與讀寫分離策略。
+ * 本測試確保測驗評分機制正確運作（滿分、及格、不及格三種情境）。
+ */
 @DisplayName("Module 09 Quiz — Redis 高可用架構")
 class Module09QuizTest {
 
@@ -79,6 +84,7 @@ class Module09QuizTest {
         );
     }
 
+    // 驗證所有題目皆答對時，測驗應判定為通過且分數為滿分
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -104,6 +110,7 @@ class Module09QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(10);
     }
 
+    // 驗證答對 80%（8/10）時，測驗應判定為通過（及格門檻）
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 8/10 正確")
     void quiz_PassesAt80Percent() {
@@ -129,6 +136,7 @@ class Module09QuizTest {
         assertThat(result.score()).isEqualTo(8.0 / 10.0);
     }
 
+    // 驗證答對低於 80%（7/10）時，測驗應判定為不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 7/10 正確")
     void quiz_FailsBelow80Percent() {

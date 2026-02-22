@@ -14,6 +14,11 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * 原子庫存扣減 Service 單元測試 — 驗證 Application 層正確委派庫存操作給 Port。
+ * 展示 Lua Script 原子庫存扣減的應用層邏輯：Service 不含業務實作，僅轉發請求至 Port。
+ * 所屬層級：Application 層（use case），使用 Mockito 模擬 Port 進行隔離測試。
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AtomicStockDeductionService 單元測試")
 class AtomicStockDeductionServiceTest {
@@ -24,6 +29,7 @@ class AtomicStockDeductionServiceTest {
     @InjectMocks
     private AtomicStockDeductionService service;
 
+    // 驗證扣減庫存操作正確委派給 AtomicStockDeductionPort 並回傳結果
     @Test
     @DisplayName("deductStock_DelegatesToPort — 扣減庫存委派給 AtomicStockDeductionPort 執行")
     void deductStock_DelegatesToPort() {
@@ -39,6 +45,7 @@ class AtomicStockDeductionServiceTest {
         verify(atomicStockDeductionPort, times(1)).deductStock("PROD-001", 5);
     }
 
+    // 驗證初始化庫存操作正確呼叫 Port 的 setStock 方法
     @Test
     @DisplayName("initializeStock_CallsSetStock — 初始化庫存呼叫 setStock")
     void initializeStock_CallsSetStock() {
@@ -52,6 +59,7 @@ class AtomicStockDeductionServiceTest {
         verify(atomicStockDeductionPort, times(1)).setStock("PROD-001", 100L);
     }
 
+    // 驗證查詢庫存操作正確委派給 AtomicStockDeductionPort 並回傳結果
     @Test
     @DisplayName("getStock_DelegatesToPort — 查詢庫存委派給 AtomicStockDeductionPort 執行")
     void getStock_DelegatesToPort() {

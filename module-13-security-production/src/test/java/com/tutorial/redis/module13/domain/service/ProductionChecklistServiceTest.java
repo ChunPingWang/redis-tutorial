@@ -8,11 +8,18 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 測試 ProductionChecklistService 領域服務（Domain 層）。
+ * 驗證 Redis 正式環境上線檢查清單的產生邏輯，確保涵蓋
+ * Security、Memory、Persistence、High Availability、Monitoring 五大類別。
+ * 屬於六角形架構的 Domain Service 層。
+ */
 @DisplayName("ProductionChecklistService 領域服務測試")
 class ProductionChecklistServiceTest {
 
     private final ProductionChecklistService service = new ProductionChecklistService();
 
+    // 驗證產生的上線檢查清單涵蓋 Security、Memory、Persistence、HA、Monitoring 五大類別
     @Test
     @DisplayName("getChecklist_ReturnsAllCategories — 產生檢查清單應涵蓋所有類別")
     void getChecklist_ReturnsAllCategories() {
@@ -30,6 +37,7 @@ class ProductionChecklistServiceTest {
                 "High Availability", "Monitoring");
     }
 
+    // 驗證 Security 類別至少包含 3 個檢查項目（如密碼設定、ACL、網路安全等）
     @Test
     @DisplayName("getChecklist_HasSecurityItems — Security 類別應至少有 3 個檢查項")
     void getChecklist_HasSecurityItems() {

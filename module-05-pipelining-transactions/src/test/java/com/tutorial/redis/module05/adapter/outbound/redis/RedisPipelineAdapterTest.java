@@ -12,12 +12,18 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Redis Pipeline Adapter 整合測試 — 驗證透過 Pipeline 批次讀寫商品價格的功能。
+ * 展示 Redis Pipeline 技術：將多個命令批次傳送以減少網路 RTT 往返次數，提升批次操作吞吐量。
+ * 所屬層級：Adapter 層（outbound），負責以 Pipeline 方式與 Redis 進行批次交互。
+ */
 @DisplayName("RedisPipelineAdapter 整合測試")
 class RedisPipelineAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisPipelineAdapter adapter;
 
+    // 驗證 Pipeline 批次寫入 5 筆商品價格後，再批次讀取全部回傳正確值
     @Test
     @DisplayName("batchSetAndGet_ReturnsAllPrices — 批次設定 5 筆價格後全部取回驗證")
     void batchSetAndGet_ReturnsAllPrices() {
@@ -49,6 +55,7 @@ class RedisPipelineAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(stringRedisTemplate.opsForValue().get("price:PROD-005")).isEqualTo("12.75");
     }
 
+    // 驗證 Pipeline 批次讀取時，不存在的 key 對應的價格回傳 null
     @Test
     @DisplayName("batchGetPrices_WhenSomeNotExist_ReturnsNullForMissing — 部分 key 不存在時回傳 null")
     void batchGetPrices_WhenSomeNotExist_ReturnsNullForMissing() {
@@ -72,6 +79,7 @@ class RedisPipelineAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(result.get("MISSING-001")).isNull();
     }
 
+    // 驗證 Pipeline 處理 100 筆大批量商品價格寫入與讀取均正確完成
     @Test
     @DisplayName("batchSetPrices_WhenLargeBatch_CompletesSuccessfully — 100 筆大批量操作正常完成")
     void batchSetPrices_WhenLargeBatch_CompletesSuccessfully() {

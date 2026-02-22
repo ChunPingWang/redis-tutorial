@@ -11,12 +11,18 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 測試 RedisExchangeRateTimeSeriesAdapter 的匯率時間序列整合行為。
+ * 驗證使用 Sorted Set 以時間戳為 score 儲存匯率快照，並支援時間範圍查詢。
+ * 屬於 Adapter 層（外部介面卡），示範 Sorted Set 時間索引的資料建模模式。
+ */
 @DisplayName("RedisExchangeRateTimeSeriesAdapter 整合測試")
 class RedisExchangeRateTimeSeriesAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisExchangeRateTimeSeriesAdapter adapter;
 
+    // 驗證新增多筆快照後，以 ZRANGEBYSCORE 做時間範圍查詢回傳正確結果
     @Test
     @DisplayName("addAndQuery_ReturnsSnapshotsInRange — 新增 5 筆快照，查詢 1500~3500 應回傳 2 筆")
     void addAndQuery_ReturnsSnapshotsInRange() {
@@ -43,6 +49,7 @@ class RedisExchangeRateTimeSeriesAdapterTest extends AbstractRedisIntegrationTes
         assertThat(all).hasSize(5);
     }
 
+    // 驗證取得最新快照時，回傳 Sorted Set 中 score 最大（最新時間戳）的成員
     @Test
     @DisplayName("getLatestSnapshot_ReturnsLatest — 新增 3 筆快照，應回傳時間戳最大的一筆")
     void getLatestSnapshot_ReturnsLatest() {
@@ -62,6 +69,7 @@ class RedisExchangeRateTimeSeriesAdapterTest extends AbstractRedisIntegrationTes
         assertThat(latest.get().getCurrencyPair()).isEqualTo("EUR/USD");
     }
 
+    // 驗證無任何快照資料時，查詢回傳空列表而非拋出例外
     @Test
     @DisplayName("getSnapshots_WhenEmpty_ReturnsEmptyList — 無資料時查詢應回傳空列表")
     void getSnapshots_WhenEmpty_ReturnsEmptyList() {

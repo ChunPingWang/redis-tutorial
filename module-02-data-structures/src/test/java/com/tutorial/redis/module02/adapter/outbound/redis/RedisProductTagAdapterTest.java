@@ -10,12 +10,18 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 商品標籤 Adapter 整合測試
+ * 驗證使用 Redis Set（SADD/SREM/SMEMBERS/SINTER/SUNION/SDIFF）管理商品標籤系統。
+ * 層級：Adapter（外部端口實作）
+ */
 @DisplayName("RedisProductTagAdapter 整合測試")
 class RedisProductTagAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private ProductTagPort productTagPort;
 
+    // 驗證 SADD 為新商品建立標籤後，能透過 SMEMBERS 正確取得
     @Test
     @DisplayName("addTags_WhenNewProduct_CreatesTags — 為新商品建立標籤")
     void addTags_WhenNewProduct_CreatesTags() {
@@ -25,6 +31,7 @@ class RedisProductTagAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(tags).containsExactlyInAnyOrder("java", "spring", "redis");
     }
 
+    // 驗證 SREM 能正確移除指定標籤，其餘標籤不受影響
     @Test
     @DisplayName("removeTags_WhenTagExists_RemovesTag — 移除商品標籤")
     void removeTags_WhenTagExists_RemovesTag() {
@@ -37,6 +44,7 @@ class RedisProductTagAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(tags).doesNotContain("java");
     }
 
+    // 驗證 SMEMBERS 能回傳商品的全部標籤
     @Test
     @DisplayName("getTags_WhenMultipleTags_ReturnsAll — 取得商品所有標籤")
     void getTags_WhenMultipleTags_ReturnsAll() {
@@ -48,6 +56,7 @@ class RedisProductTagAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(tags).containsExactlyInAnyOrder("backend", "database", "cache", "nosql");
     }
 
+    // 驗證 SISMEMBER 判斷標籤是否存在於集合中
     @Test
     @DisplayName("hasTag_WhenTagExists_ReturnsTrue — 檢查標籤是否存在")
     void hasTag_WhenTagExists_ReturnsTrue() {
@@ -57,6 +66,7 @@ class RedisProductTagAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(productTagPort.hasTag("PROD-004", "python")).isFalse();
     }
 
+    // 驗證 SINTER 取得兩個商品的共同標籤（交集）
     @Test
     @DisplayName("getCommonTags_WhenOverlap_ReturnsIntersection — SINTER 取得共同標籤")
     void getCommonTags_WhenOverlap_ReturnsIntersection() {
@@ -68,6 +78,7 @@ class RedisProductTagAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(common).containsExactlyInAnyOrder("spring", "redis");
     }
 
+    // 驗證 SUNION 取得兩個商品的所有標籤（聯集）
     @Test
     @DisplayName("getAllTags_ReturnsMergedSet — SUNION 取得所有標籤聯集")
     void getAllTags_ReturnsMergedSet() {
@@ -79,6 +90,7 @@ class RedisProductTagAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(all).containsExactlyInAnyOrder("java", "spring", "python", "django");
     }
 
+    // 驗證 SDIFF 取得第一個商品獨有的標籤（差集）
     @Test
     @DisplayName("getUniqueTags_ReturnsDifference — SDIFF 取得差集標籤")
     void getUniqueTags_ReturnsDifference() {
@@ -90,6 +102,7 @@ class RedisProductTagAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(unique).containsExactlyInAnyOrder("java");
     }
 
+    // 驗證 Redis key 遵循 ecommerce:tags:{productId} 命名規範
     @Test
     @DisplayName("key_FollowsNamingConvention — 驗證 key 符合 ecommerce:tags:* 命名規範")
     void key_FollowsNamingConvention() {

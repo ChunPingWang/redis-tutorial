@@ -14,6 +14,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Module 14 認證模擬考試測試類別。
+ * 驗證 80 題 Redis 認證模擬考試的題庫完整性、評分邏輯與及格門檻。
+ * 涵蓋 Redis 全部核心概念：資料結構、持久化、叢集、效能調校、安全與除錯。
+ * 所屬層級：Capstone 總整合 — 測驗驗證層
+ */
 @DisplayName("Module 14 Redis 認證模擬考試 — 80 題")
 class Module14QuizTest {
 
@@ -700,6 +706,7 @@ class Module14QuizTest {
         return new Quiz("Redis 認證模擬考試", "module-14", questions, 0.8);
     }
 
+    // 驗證全部答對時應獲得滿分（100%）
     @Test
     @DisplayName("allCorrectAnswers_ScorePerfect — 全部答對應獲得滿分")
     void allCorrectAnswers_ScorePerfect() {
@@ -714,6 +721,7 @@ class Module14QuizTest {
         assertThat(result.score()).isEqualTo(1.0);
     }
 
+    // 驗證全部未作答時應得零分且不及格
     @Test
     @DisplayName("noAnswers_ScoreZero — 全部未答應得零分且不及格")
     void noAnswers_ScoreZero() {
@@ -723,6 +731,7 @@ class Module14QuizTest {
         assertThat(result.correctAnswers()).isZero();
     }
 
+    // 驗證題庫總共應有 80 題
     @Test
     @DisplayName("examHas80Questions — 考試應有 80 題")
     void examHas80Questions() {
@@ -730,6 +739,7 @@ class Module14QuizTest {
         assertThat(quiz.questions()).hasSize(80);
     }
 
+    // 驗證及格門檻設定為 80%
     @Test
     @DisplayName("passingRequires80Percent — 及格門檻為 80%")
     void passingRequires80Percent() {
@@ -737,6 +747,7 @@ class Module14QuizTest {
         assertThat(quiz.passingRate()).isEqualTo(0.8);
     }
 
+    // 驗證剛好達到 80% 正確率（64/80）應判定為及格
     @Test
     @DisplayName("exactly80PercentPasses — 剛好 80% 正確率應及格")
     void exactly80PercentPasses() {
@@ -757,6 +768,7 @@ class Module14QuizTest {
         assertThat(result.score()).isEqualTo(0.8);
     }
 
+    // 驗證低於 80% 正確率（63/80）應判定為不及格
     @Test
     @DisplayName("below80PercentFails — 低於 80% 正確率應不及格")
     void below80PercentFails() {
@@ -776,6 +788,7 @@ class Module14QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(63);
     }
 
+    // 驗證所有題號不重複，確保題庫完整性
     @Test
     @DisplayName("allQuestionNumbersUnique — 所有題號應唯一")
     void allQuestionNumbersUnique() {
@@ -786,6 +799,7 @@ class Module14QuizTest {
         assertThat(numbers).doesNotHaveDuplicates();
     }
 
+    // 驗證每道題目都有四個選項
     @Test
     @DisplayName("allQuestionsHaveFourOptions — 每題應有四個選項")
     void allQuestionsHaveFourOptions() {
@@ -797,6 +811,7 @@ class Module14QuizTest {
         }
     }
 
+    // 驗證所有正確答案索引都在 0-3 的有效範圍內
     @Test
     @DisplayName("allCorrectOptionIndicesValid — 所有正確答案索引應在有效範圍內")
     void allCorrectOptionIndicesValid() {

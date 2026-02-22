@@ -12,12 +12,18 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 測試 RedisAccountDaoAdapter 的 Redis 持久化整合行為。
+ * 驗證帳戶以 Hash per entity 模式儲存、二級索引（依幣別與狀態）的建立與清理。
+ * 屬於 Adapter 層（外部介面卡），示範 Key 設計與 Set 二級索引的資料建模。
+ */
 @DisplayName("RedisAccountDaoAdapter 整合測試")
 class RedisAccountDaoAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisAccountDaoAdapter adapter;
 
+    // 驗證帳戶存入 Redis Hash 後，可透過主鍵 ID 查回完整欄位
     @Test
     @DisplayName("save_AndFindById_ReturnsAccount — 儲存帳戶後以 ID 查詢，應回傳完整欄位")
     void save_AndFindById_ReturnsAccount() {
@@ -48,6 +54,7 @@ class RedisAccountDaoAdapterTest extends AbstractRedisIntegrationTest {
                 .isEqualTo("USD");
     }
 
+    // 驗證查詢不存在的帳戶 ID 時，回傳空的 Optional
     @Test
     @DisplayName("findById_WhenNotExists_ReturnsEmpty — 查詢不存在的帳戶，應回傳空 Optional")
     void findById_WhenNotExists_ReturnsEmpty() {
@@ -58,6 +65,7 @@ class RedisAccountDaoAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(result).isEmpty();
     }
 
+    // 驗證刪除帳戶時，主 Key 與相關二級索引（幣別、狀態）同步清除，避免孤立索引
     @Test
     @DisplayName("delete_RemovesAccountAndIndexes — 刪除帳戶後，實體與二級索引都應被清除")
     void delete_RemovesAccountAndIndexes() {
@@ -83,6 +91,7 @@ class RedisAccountDaoAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(adapter.findByStatus("ACTIVE")).isEmpty();
     }
 
+    // 驗證透過幣別二級索引（Set）查詢帳戶，回傳符合幣別的帳戶清單
     @Test
     @DisplayName("findByCurrency_ReturnsMatchingAccounts — 3 筆帳戶 (2 USD, 1 TWD)，查詢 USD 應回傳 2 筆")
     void findByCurrency_ReturnsMatchingAccounts() {
@@ -107,6 +116,7 @@ class RedisAccountDaoAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(twdAccounts.getFirst().getAccountId()).isEqualTo("acct-twd-1");
     }
 
+    // 驗證透過狀態二級索引（Set）查詢帳戶，回傳符合狀態的帳戶清單
     @Test
     @DisplayName("findByStatus_ReturnsMatchingAccounts — 3 筆帳戶 (2 ACTIVE, 1 FROZEN)，查詢 ACTIVE 應回傳 2 筆")
     void findByStatus_ReturnsMatchingAccounts() {

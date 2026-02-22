@@ -20,6 +20,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 驗證 ProductSearchService 的商品搜尋業務邏輯單元測試。
+ * 使用 Mockito 模擬 SearchQueryPort，確認 FT.SEARCH 全文搜尋與 TAG 類別查詢的委派行為。
+ * 此測試屬於應用層 (application)，不依賴實際 Redis 連線，僅驗證 Service 的協調邏輯。
+ */
 @DisplayName("ProductSearchService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class ProductSearchServiceTest {
@@ -36,6 +41,7 @@ class ProductSearchServiceTest {
     @InjectMocks
     private ProductSearchService service;
 
+    // 驗證全文搜尋 "wireless" 時，Service 正確委派給 SearchQueryPort 並回傳預期結果
     @Test
     @DisplayName("searchProducts_DelegatesToSearchQueryPort — 搜尋商品應委派給 SearchQueryPort")
     void searchProducts_DelegatesToSearchQueryPort() {
@@ -53,6 +59,7 @@ class ProductSearchServiceTest {
         assertThat(result.getTotalResults()).isEqualTo(1L);
     }
 
+    // 驗證依類別搜尋時，Service 組裝 TAG 查詢語法 @category:{electronics} 並正確委派
     @Test
     @DisplayName("searchByCategory_BuildsTagQuery — 依類別搜尋時，查詢應包含 @category:{category}")
     void searchByCategory_BuildsTagQuery() {

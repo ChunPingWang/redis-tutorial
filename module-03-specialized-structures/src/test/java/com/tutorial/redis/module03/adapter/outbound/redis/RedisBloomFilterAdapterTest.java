@@ -11,6 +11,11 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Redis Bloom Filter 配接器整合測試
+ * 驗證 BloomFilterPort 透過 Redis Bloom Filter（BF.*）命令的實作正確性
+ * 涵蓋新增、查詢、批量操作與假陽性率檢驗，屬於 Adapter 層（外部輸出端）
+ */
 @DisplayName("RedisBloomFilterAdapter 整合測試")
 class RedisBloomFilterAdapterTest extends AbstractRedisModuleIntegrationTest {
 
@@ -19,6 +24,7 @@ class RedisBloomFilterAdapterTest extends AbstractRedisModuleIntegrationTest {
 
     private static final String FILTER_NAME = "test-bloom";
 
+    // 驗證建立 Bloom Filter 後新增元素，mightContain 回傳 true
     @Test
     @DisplayName("createFilter_AndAdd_CanCheckExistence — 建立過濾器並新增後可查詢存在")
     void createFilter_AndAdd_CanCheckExistence() {
@@ -29,6 +35,7 @@ class RedisBloomFilterAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(bloomFilterPort.mightContain(FILTER_NAME, "item1")).isTrue();
     }
 
+    // 驗證未新增過的元素查詢時回傳 false（不存在時無假陰性）
     @Test
     @DisplayName("mightContain_WhenNotAdded_ReturnsFalse — 未新增的項目回傳 false")
     void mightContain_WhenNotAdded_ReturnsFalse() {
@@ -37,6 +44,7 @@ class RedisBloomFilterAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(bloomFilterPort.mightContain(FILTER_NAME, "non-existent-item")).isFalse();
     }
 
+    // 驗證批量新增 10 個元素後，mightContainAll 全部回傳 true
     @Test
     @DisplayName("addAll_WhenMultipleItems_AllContained — 批量新增後全部可查詢")
     void addAll_WhenMultipleItems_AllContained() {
@@ -51,6 +59,7 @@ class RedisBloomFilterAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(results).hasSize(10).allMatch(Boolean::booleanValue);
     }
 
+    // 驗證新增 10000 個元素後，對不存在元素的假陽性率低於 2%
     @Test
     @DisplayName("bloomFilter_FalsePositiveRateWithinBounds — 假陽性率在 2% 以內")
     void bloomFilter_FalsePositiveRateWithinBounds() {
@@ -74,6 +83,7 @@ class RedisBloomFilterAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(falsePositiveRate).isLessThan(0.02);
     }
 
+    // 驗證重複新增同一元素時，第二次 add 回傳 false
     @Test
     @DisplayName("add_WhenAlreadyExists_ReturnsFalse — 重複新增回傳 false")
     void add_WhenAlreadyExists_ReturnsFalse() {

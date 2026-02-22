@@ -7,12 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * RedisAccountCacheAdapter 整合測試類別。
+ * 驗證使用 RedisJSON 儲存帳戶 profile 與 Redis String 快取餘額的功能。
+ * 展示 JSON.SET/JSON.GET 與 SET/GET 在金融帳戶快取場景的應用。
+ * 所屬：金融子系統 — adapter 層
+ */
 @DisplayName("RedisAccountCacheAdapter 整合測試")
 class RedisAccountCacheAdapterTest extends AbstractRedisModuleIntegrationTest {
 
     @Autowired
     private RedisAccountCacheAdapter adapter;
 
+    // 驗證設定帳戶餘額後，取得餘額應回傳正確數值
     @Test
     @DisplayName("setAndGetBalance_ReturnsStoredBalance — 設定並取得餘額應回傳已儲存的值")
     void setAndGetBalance_ReturnsStoredBalance() {
@@ -29,6 +36,7 @@ class RedisAccountCacheAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(result).isEqualTo(balance);
     }
 
+    // 驗證儲存 JSON 格式的帳戶 profile 後，取得時應包含完整欄位資料
     @Test
     @DisplayName("storeAndGetProfile_ReturnsJsonProfile — 儲存並取得 JSON 檔案應回傳完整 profile")
     void storeAndGetProfile_ReturnsJsonProfile() {

@@ -14,6 +14,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 驗證 Module 11 的 RediSearch 測驗題目與評分邏輯。
+ * 涵蓋 FT.CREATE、FT.SEARCH、FT.AGGREGATE、FT.SUGADD 等 RediSearch 核心概念的問答。
+ * 此測試屬於領域層 (domain)，確認測驗及格門檻 (80%) 與分數計算的正確性。
+ */
 @DisplayName("Module 11 Quiz — RediSearch 全文檢索與索引")
 class Module11QuizTest {
 
@@ -89,6 +94,7 @@ class Module11QuizTest {
         );
     }
 
+    // 驗證 12 題全部答對時，測驗應通過且分數為滿分 (1.0)
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -116,6 +122,7 @@ class Module11QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(12);
     }
 
+    // 驗證答對 10/12 題 (約 83%) 時，仍達到 80% 門檻應通過測驗
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 10/12 正確")
     void quiz_PassesAt80Percent() {
@@ -143,6 +150,7 @@ class Module11QuizTest {
         assertThat(result.score()).isCloseTo(10.0 / 12.0, org.assertj.core.data.Offset.offset(0.001));
     }
 
+    // 驗證答對 9/12 題 (75%) 時，未達 80% 門檻應不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 9/12 正確")
     void quiz_FailsBelow80Percent() {

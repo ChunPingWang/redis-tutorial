@@ -14,6 +14,12 @@ import java.util.List;
 
 import static org.mockito.Mockito.verify;
 
+/**
+ * OrderService 應用層單元測試類別。
+ * 驗證建立訂單時正確將訂單事件發布至 Redis Stream。
+ * 展示事件驅動架構中使用 Redis Stream 作為訊息通道。
+ * 所屬：電商子系統 — application 層
+ */
 @DisplayName("OrderService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -24,6 +30,7 @@ class OrderServiceTest {
     @InjectMocks
     private OrderService orderService;
 
+    // 驗證建立訂單時，服務層透過 OrderStreamPort 將訂單發布至 Stream
     @Test
     @DisplayName("createOrder_PublishesToStream — 建立訂單應發布至 Redis Stream")
     void createOrder_PublishesToStream() {

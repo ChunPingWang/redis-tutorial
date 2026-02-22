@@ -13,6 +13,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Module 02 測驗驗證測試
+ * 驗證 Redis 核心資料結構（String/Hash/List/Set/Sorted Set）的觀念問答。
+ * 涵蓋內部編碼、時間複雜度、資料結構選型等知識點。
+ * 層級：模組測驗（跨層級觀念驗證）
+ */
 @DisplayName("Module 02 Quiz — Redis 核心資料結構")
 class Module02QuizTest {
 
@@ -168,6 +174,7 @@ class Module02QuizTest {
             )
     );
 
+    // 驗證全部 15 題答對時測驗通過且分數為滿分
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -195,6 +202,7 @@ class Module02QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(15);
     }
 
+    // 驗證答對 12/15 題（80%）時測驗仍然通過
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 12/15 正確")
     void quiz_PassesAt80Percent() {
@@ -222,6 +230,7 @@ class Module02QuizTest {
         assertThat(result.score()).isEqualTo(12.0 / 15.0);
     }
 
+    // 驗證答對 11/15 題（低於 80%）時測驗不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 11/15 正確")
     void quiz_FailsBelow80Percent() {

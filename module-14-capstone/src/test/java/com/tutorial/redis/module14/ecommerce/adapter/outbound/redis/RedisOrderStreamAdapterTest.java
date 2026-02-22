@@ -12,12 +12,19 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * RedisOrderStreamAdapter 整合測試類別。
+ * 驗證使用 Redis Stream 發布與消費訂單事件的功能。
+ * 展示 XADD/XREADGROUP 在電商訂單事件驅動架構中的應用。
+ * 所屬：電商子系統 — adapter 層
+ */
 @DisplayName("RedisOrderStreamAdapter 整合測試")
 class RedisOrderStreamAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisOrderStreamAdapter adapter;
 
+    // 驗證發布訂單至 Stream 後，消費者群組能正確讀取訂單資料
     @Test
     @DisplayName("publishAndConsume_ReturnsOrderData — 發布訂單後消費應取得訂單資料")
     void publishAndConsume_ReturnsOrderData() {

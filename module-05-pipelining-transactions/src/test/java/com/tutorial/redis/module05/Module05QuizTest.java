@@ -13,6 +13,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 模組五測驗測試類別 — 驗證 Pipeline 與交易相關知識問答的評分邏輯。
+ * 涵蓋 Redis Pipeline、MULTI/EXEC 交易、WATCH 樂觀鎖、Lua Script 原子操作等觀念題目。
+ * 所屬層級：跨層級的知識驗證測試，不隸屬特定架構層。
+ */
 @DisplayName("Module 05 Quiz — Pipeline 與交易")
 class Module05QuizTest {
 
@@ -123,6 +128,7 @@ class Module05QuizTest {
             )
     );
 
+    // 驗證全部 10 題答對時，測驗結果為通過且得分為滿分 1.0
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -145,6 +151,7 @@ class Module05QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(10);
     }
 
+    // 驗證答對 8/10 題（80%）時，測驗結果仍為通過
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 8/10 正確")
     void quiz_PassesAt80Percent() {
@@ -167,6 +174,7 @@ class Module05QuizTest {
         assertThat(result.score()).isEqualTo(8.0 / 10.0);
     }
 
+    // 驗證答對 7/10 題（70%）時，低於 80% 門檻，測驗結果為不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 7/10 正確")
     void quiz_FailsBelow80Percent() {

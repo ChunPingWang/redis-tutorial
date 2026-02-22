@@ -14,6 +14,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Module 12 測驗測試類別，驗證 RedisJSON 與 Vector Search 的知識問答。
+ * 涵蓋 JSON.SET、JSON.GET、JSON.NUMINCRBY、JSON.ARRAPPEND 等 RedisJSON 指令，
+ * 以及 KNN 向量搜尋、FLAT/HNSW 演算法、COSINE 距離度量等概念。
+ * 此測試不屬於特定架構層，而是驗證學習成果的測驗機制。
+ */
 @DisplayName("Module 12 Quiz — RedisJSON + Vector Search")
 class Module12QuizTest {
 
@@ -79,6 +85,7 @@ class Module12QuizTest {
         );
     }
 
+    // 驗證全部答對時測驗應通過，分數為 100%
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -104,6 +111,7 @@ class Module12QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(10);
     }
 
+    // 驗證答對 80%（8/10）時測驗仍應通過
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 8/10 正確")
     void quiz_PassesAt80Percent() {
@@ -129,6 +137,7 @@ class Module12QuizTest {
         assertThat(result.score()).isEqualTo(8.0 / 10.0);
     }
 
+    // 驗證答對低於 80%（7/10）時測驗應不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 7/10 正確")
     void quiz_FailsBelow80Percent() {

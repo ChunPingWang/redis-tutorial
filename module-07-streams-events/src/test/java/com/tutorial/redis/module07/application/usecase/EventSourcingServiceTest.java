@@ -18,6 +18,12 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * 驗證 EventSourcingService 的事件溯源應用服務邏輯。
+ * 測試事件的寫入委派（透過 XADD 寫入 Stream）與狀態重建（讀取全部事件後重播），
+ * 展示 Event Sourcing 模式在 Redis Streams 上的實作。
+ * 所屬層級：Application 層（Use Case 單元測試，使用 Mock 隔離）
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("EventSourcingService 單元測試")
 class EventSourcingServiceTest {
@@ -31,6 +37,7 @@ class EventSourcingServiceTest {
     @InjectMocks
     private EventSourcingService service;
 
+    // 驗證新增帳戶事件時，正確組合 streamKey 並委派給 EventStorePort 寫入
     @Test
     @DisplayName("appendAccountEvent_DelegatesToPort — 新增事件應委派給 EventStorePort，且 streamKey 格式為 event:account:{accountId}")
     void appendAccountEvent_DelegatesToPort() {
@@ -49,6 +56,7 @@ class EventSourcingServiceTest {
         verify(eventStorePort, times(1)).appendEvent(expectedStreamKey, event);
     }
 
+    // 驗證重播事件流程：先從 EventStorePort 讀取全部事件，再交由 EventReplayService 重建最終狀態
     @Test
     @DisplayName("replayEvents_ReadsThenReplays — 重播事件應先讀取所有事件，再委派給 EventReplayService 重建狀態")
     void replayEvents_ReadsThenReplays() {

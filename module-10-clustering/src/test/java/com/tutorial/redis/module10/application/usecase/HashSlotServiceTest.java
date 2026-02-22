@@ -15,6 +15,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * 測試 HashSlotService 的 Slot 計算與 Hash Tag 分析委派邏輯。
+ * 驗證 Application 層是否正確將 Hash Slot 計算與 Hash Tag 分析委派給 Domain 層的 HashSlotCalculator。
+ * 屬於 Application 層（用例服務），使用 Mockito 驗證方法委派行為。
+ */
 @DisplayName("HashSlotService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class HashSlotServiceTest {
@@ -25,6 +30,7 @@ class HashSlotServiceTest {
     @InjectMocks
     private HashSlotService service;
 
+    // 驗證 calculateSlot 方法正確委派給 HashSlotCalculator 並回傳其結果
     @Test
     @DisplayName("calculateSlot_DelegatesToCalculator — 計算 Slot 應委派給 HashSlotCalculator")
     void calculateSlot_DelegatesToCalculator() {
@@ -40,6 +46,7 @@ class HashSlotServiceTest {
         verify(calculator, times(1)).analyze("test-key");
     }
 
+    // 驗證 analyzeHashTag 方法正確委派給 HashSlotCalculator 並回傳 Hash Tag 分析結果
     @Test
     @DisplayName("analyzeHashTag_DelegatesToCalculator — 分析 Hash Tag 應委派給 HashSlotCalculator")
     void analyzeHashTag_DelegatesToCalculator() {

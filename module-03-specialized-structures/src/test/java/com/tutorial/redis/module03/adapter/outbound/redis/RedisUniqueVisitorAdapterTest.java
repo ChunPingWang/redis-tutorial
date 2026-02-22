@@ -10,6 +10,11 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Redis HyperLogLog 配接器整合測試
+ * 驗證 UniqueVisitorPort 透過 Redis HyperLogLog（PFADD/PFCOUNT/PFMERGE）命令的實作正確性
+ * 涵蓋新增訪客、近似計數與多日合併計算，屬於 Adapter 層（外部輸出端）
+ */
 @DisplayName("RedisUniqueVisitorAdapter 整合測試")
 class RedisUniqueVisitorAdapterTest extends AbstractRedisModuleIntegrationTest {
 
@@ -18,6 +23,7 @@ class RedisUniqueVisitorAdapterTest extends AbstractRedisModuleIntegrationTest {
 
     private static final String PAGE_ID = "page-home";
 
+    // 驗證 PFADD 新增全新訪客時回傳 true（內部結構有更新）
     @Test
     @DisplayName("addVisitor_NewVisitor_ReturnsTrue — 新訪客回傳 true")
     void addVisitor_NewVisitor_ReturnsTrue() {
@@ -26,6 +32,7 @@ class RedisUniqueVisitorAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(result).isTrue();
     }
 
+    // 驗證 PFADD 重複新增同一訪客時回傳 false（內部結構未變更）
     @Test
     @DisplayName("addVisitor_SameVisitorTwice_ReturnsFalse — 重複訪客回傳 false")
     void addVisitor_SameVisitorTwice_ReturnsFalse() {
@@ -36,6 +43,7 @@ class RedisUniqueVisitorAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(result).isFalse();
     }
 
+    // 驗證 PFCOUNT 對 100 位訪客的近似計數在合理誤差範圍內（90~110）
     @Test
     @DisplayName("countVisitors_WhenMultipleVisitors_ReturnsApproximateCount — 100 位訪客計數接近 100")
     void countVisitors_WhenMultipleVisitors_ReturnsApproximateCount() {
@@ -49,6 +57,7 @@ class RedisUniqueVisitorAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(count).isBetween(90L, 110L);
     }
 
+    // 驗證 PFMERGE 合併兩天的 HyperLogLog 後，去重計數接近 90（含重疊訪客）
     @Test
     @DisplayName("countMergedVisitors_WhenMultiplePeriods_ReturnsMergedCount — 合併多日計數約 90")
     void countMergedVisitors_WhenMultiplePeriods_ReturnsMergedCount() {
@@ -72,6 +81,7 @@ class RedisUniqueVisitorAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(mergedCount).isBetween(80L, 100L);
     }
 
+    // 驗證尚無訪客時 PFCOUNT 回傳 0
     @Test
     @DisplayName("countVisitors_WhenEmpty_ReturnsZero — 無訪客時計數為零")
     void countVisitors_WhenEmpty_ReturnsZero() {

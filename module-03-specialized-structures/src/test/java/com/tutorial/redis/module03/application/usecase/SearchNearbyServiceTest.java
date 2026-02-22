@@ -17,6 +17,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 附近搜尋服務單元測試
+ * 驗證 SearchNearbyService 正確委派 Geospatial 相關操作至 GeoLocationPort
+ * 使用 Mockito 隔離外部依賴，屬於 Application 層（使用案例）
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SearchNearbyService 單元測試")
 class SearchNearbyServiceTest {
@@ -27,6 +32,7 @@ class SearchNearbyServiceTest {
     @InjectMocks
     private SearchNearbyService service;
 
+    // 驗證註冊門市時正確委派至 GeoLocationPort.addLocation
     @Test
     @DisplayName("registerStore_DelegatesToPort — 委派至 Port 的 addLocation 方法")
     void registerStore_DelegatesToPort() {
@@ -37,6 +43,7 @@ class SearchNearbyServiceTest {
         verify(geoLocationPort).addLocation(location);
     }
 
+    // 驗證搜尋附近門市時正確委派至 GeoLocationPort.searchNearby 並回傳結果
     @Test
     @DisplayName("findNearbyStores_DelegatesToPort — 委派至 Port 的 searchNearby 方法")
     void findNearbyStores_DelegatesToPort() {
@@ -52,6 +59,7 @@ class SearchNearbyServiceTest {
         verify(geoLocationPort).searchNearby(121.54, 25.04, 10, "km", 10);
     }
 
+    // 驗證計算兩門市距離時正確委派至 GeoLocationPort.getDistance 並回傳結果
     @Test
     @DisplayName("getDistanceBetweenStores_DelegatesToPort — 委派至 Port 的 getDistance 方法")
     void getDistanceBetweenStores_DelegatesToPort() {

@@ -14,6 +14,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 測試 Module 13 的綜合測驗功能。
+ * 驗證涵蓋 Redis 安全（ACL、TLS、protected-mode）、監控（SLOWLOG、INFO、記憶體）
+ * 及正式環境最佳實踐（淘汰策略、Big Key 偵測）等概念的 15 道測驗題。
+ * 此測試類別不屬於特定架構層，而是驗證整個模組的知識掌握程度。
+ */
 @DisplayName("Module 13 Quiz — 安全、監控與生產最佳實踐")
 class Module13QuizTest {
 
@@ -104,6 +110,7 @@ class Module13QuizTest {
         );
     }
 
+    // 驗證 15 題全部答對時，測驗結果為通過且分數為 1.0（滿分）
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -134,6 +141,7 @@ class Module13QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(15);
     }
 
+    // 驗證答對 12/15 題（80%）時，剛好達到及格門檻仍可通過
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 12/15 正確")
     void quiz_PassesAt80Percent() {
@@ -164,6 +172,7 @@ class Module13QuizTest {
         assertThat(result.score()).isCloseTo(12.0 / 15.0, org.assertj.core.data.Offset.offset(0.001));
     }
 
+    // 驗證答對 11/15 題（73.3%）時，低於 80% 及格門檻應不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 11/15 正確")
     void quiz_FailsBelow80Percent() {

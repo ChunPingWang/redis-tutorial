@@ -13,6 +13,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 測試 Module 06 的隨堂測驗，驗證學習者對 Redis 資料建模概念的理解。
+ * 涵蓋 Key 命名慣例、Hash per entity、JSON String、二級索引、Sorted Set 時間索引等核心概念。
+ * 屬於模組層級的知識驗證測試。
+ */
 @DisplayName("Module 06 Quiz — Redis 資料建模模式")
 class Module06QuizTest {
 
@@ -123,6 +128,7 @@ class Module06QuizTest {
             )
     );
 
+    // 驗證所有題目全數答對時，測驗結果為通過且分數為滿分
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -145,6 +151,7 @@ class Module06QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(10);
     }
 
+    // 驗證答對 80%（8/10）時，測驗結果仍為通過（門檻為 80%）
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 8/10 正確")
     void quiz_PassesAt80Percent() {
@@ -167,6 +174,7 @@ class Module06QuizTest {
         assertThat(result.score()).isEqualTo(8.0 / 10.0);
     }
 
+    // 驗證答對低於 80%（7/10）時，測驗結果為不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 7/10 正確")
     void quiz_FailsBelow80Percent() {

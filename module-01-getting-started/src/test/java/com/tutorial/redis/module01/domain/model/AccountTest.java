@@ -9,9 +9,16 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * Account 領域模型單元測試
+ * 驗證帳戶物件的建構、欄位初始化、空值防護及以 accountId 為基準的相等性判斷。
+ * 此模型作為 Redis 快取的核心資料結構。
+ * 層級：Domain（領域模型層）
+ */
 @DisplayName("Account 領域模型測試")
 class AccountTest {
 
+    // 驗證以合法參數建構帳戶時，所有欄位正確初始化
     @Test
     @DisplayName("constructor_WhenValidArgs_CreatesAccount")
     void constructor_WhenValidArgs_CreatesAccount() {
@@ -25,6 +32,7 @@ class AccountTest {
         assertThat(account.getLastUpdated()).isEqualTo(now);
     }
 
+    // 驗證 accountId 為 null 時拋出 NullPointerException
     @Test
     @DisplayName("constructor_WhenNullAccountId_ThrowsNPE")
     void constructor_WhenNullAccountId_ThrowsNPE() {
@@ -33,6 +41,7 @@ class AccountTest {
                 .hasMessageContaining("accountId");
     }
 
+    // 驗證相同 accountId 的兩個帳戶視為相等
     @Test
     @DisplayName("equals_WhenSameAccountId_ReturnsTrue")
     void equals_WhenSameAccountId_ReturnsTrue() {
@@ -42,6 +51,7 @@ class AccountTest {
         assertThat(a1).isEqualTo(a2);
     }
 
+    // 驗證不同 accountId 的兩個帳戶視為不相等
     @Test
     @DisplayName("equals_WhenDifferentAccountId_ReturnsFalse")
     void equals_WhenDifferentAccountId_ReturnsFalse() {

@@ -13,12 +13,18 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 測試 RedisOrderDaoAdapter 的訂單 Redis 持久化整合行為。
+ * 驗證訂單以 JSON String 模式（內嵌 OrderItem）儲存，搭配客戶 ID 的 Set 二級索引及建立時間的 Sorted Set 時間索引。
+ * 屬於 Adapter 層（外部介面卡），示範嵌入式（embedded）反正規化與多種二級索引的資料建模。
+ */
 @DisplayName("RedisOrderDaoAdapter 整合測試")
 class RedisOrderDaoAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisOrderDaoAdapter adapter;
 
+    // 驗證訂單（含內嵌品項）以 JSON 序列化存入 Redis 後，可透過主鍵查回完整物件
     @Test
     @DisplayName("save_AndFindById_ReturnsOrder — 儲存含 2 個品項的訂單後以 ID 查詢，應回傳完整物件")
     void save_AndFindById_ReturnsOrder() {
@@ -47,6 +53,7 @@ class RedisOrderDaoAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(result.getItems().get(1).getProductName()).isEqualTo("Mouse");
     }
 
+    // 驗證查詢不存在的訂單 ID 時，回傳空的 Optional
     @Test
     @DisplayName("findById_WhenNotExists_ReturnsEmpty — 查詢不存在的訂單，應回傳空 Optional")
     void findById_WhenNotExists_ReturnsEmpty() {
@@ -57,6 +64,7 @@ class RedisOrderDaoAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(result).isEmpty();
     }
 
+    // 驗證刪除訂單時，主 Key、客戶 ID 索引及時間索引同步清除，避免孤立索引
     @Test
     @DisplayName("delete_RemovesOrderAndIndexes — 刪除訂單後，實體與所有二級索引都應被清除")
     void delete_RemovesOrderAndIndexes() {
@@ -84,6 +92,7 @@ class RedisOrderDaoAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(adapter.findByCreatedAtRange(1699999999000L, 1700000001000L)).isEmpty();
     }
 
+    // 驗證透過客戶 ID 的 Set 二級索引查詢，回傳該客戶的所有訂單
     @Test
     @DisplayName("findByCustomerId_ReturnsCustomerOrders — 3 筆訂單 (2 cust-A, 1 cust-B)，查詢 cust-A 應回傳 2 筆")
     void findByCustomerId_ReturnsCustomerOrders() {
@@ -110,6 +119,7 @@ class RedisOrderDaoAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(custBOrders.getFirst().getOrderId()).isEqualTo("ord-cb-1");
     }
 
+    // 驗證透過 Sorted Set 時間索引做範圍查詢，回傳指定時間區間內的訂單
     @Test
     @DisplayName("findByCreatedAtRange_ReturnsOrdersInRange — 3 筆訂單時間 1000/2000/3000，查詢 1500~2500 應回傳 1 筆")
     void findByCreatedAtRange_ReturnsOrdersInRange() {

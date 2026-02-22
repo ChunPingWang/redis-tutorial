@@ -20,6 +20,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * ProductSearchService 應用層單元測試類別。
+ * 驗證產品索引（快取+搜尋+自動完成）與產品搜尋的業務邏輯。
+ * 展示 RediSearch 全文搜尋與 Redis Hash 快取的協同應用。
+ * 所屬：電商子系統 — application 層
+ */
 @DisplayName("ProductSearchService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class ProductSearchServiceTest {
@@ -33,6 +39,7 @@ class ProductSearchServiceTest {
     @InjectMocks
     private ProductSearchService productSearchService;
 
+    // 驗證索引產品時同時進行快取、搜尋索引建立與自動完成建議新增
     @Test
     @DisplayName("indexProduct_CachesAndIndexes — 索引產品應同時快取與建立搜尋索引")
     void indexProduct_CachesAndIndexes() {
@@ -49,6 +56,7 @@ class ProductSearchServiceTest {
         verify(productSearchPort).addSuggestion("Widget", 1.0);
     }
 
+    // 驗證搜尋產品時正確委派給 ProductSearchPort 並回傳搜尋結果
     @Test
     @DisplayName("searchProducts_DelegatesToSearchPort — 搜尋產品應委派給 ProductSearchPort")
     void searchProducts_DelegatesToSearchPort() {

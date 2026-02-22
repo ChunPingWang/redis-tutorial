@@ -7,12 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * RedisExchangeRateAdapter 整合測試類別。
+ * 驗證使用 Redis TimeSeries 記錄與查詢匯率時序資料的功能。
+ * 展示 TS.ADD/TS.GET 在金融匯率歷史記錄場景的應用。
+ * 所屬：金融子系統 — adapter 層
+ */
 @DisplayName("RedisExchangeRateAdapter 整合測試")
 class RedisExchangeRateAdapterTest extends AbstractRedisModuleIntegrationTest {
 
     @Autowired
     private RedisExchangeRateAdapter adapter;
 
+    // 驗證記錄多筆不同時間戳的匯率後，取得最新匯率應回傳最近一筆
     @Test
     @DisplayName("recordAndGetLatest_ReturnsLatestRate — 記錄匯率後取得最新值應正確回傳")
     void recordAndGetLatest_ReturnsLatestRate() {

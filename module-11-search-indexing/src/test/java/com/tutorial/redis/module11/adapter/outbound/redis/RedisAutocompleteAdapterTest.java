@@ -10,12 +10,18 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 驗證 RedisAutocompleteAdapter 的自動完成功能整合測試。
+ * 測試 RediSearch 的 FT.SUGADD（新增建議）與 FT.SUGGET（查詢建議）指令。
+ * 此測試屬於適配器層 (adapter)，確認與 Redis 自動完成字典的互動正確性。
+ */
 @DisplayName("RedisAutocompleteAdapter 整合測試")
 class RedisAutocompleteAdapterTest extends AbstractRedisModuleIntegrationTest {
 
     @Autowired
     private RedisAutocompleteAdapter autocompleteAdapter;
 
+    // 驗證使用 FT.SUGADD 新增多筆建議後，FT.SUGGET 能依前綴回傳匹配結果
     @Test
     @DisplayName("addAndGetSuggestions_ReturnsMatches — 新增建議後查詢，應回傳匹配的建議")
     void addAndGetSuggestions_ReturnsMatches() {
@@ -33,6 +39,7 @@ class RedisAutocompleteAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(suggestions.get(0).getSuggestion()).containsIgnoringCase("wire");
     }
 
+    // 驗證當查詢前綴無任何匹配建議時，應回傳空列表
     @Test
     @DisplayName("getSuggestions_NoMatch_ReturnsEmpty — 查詢無匹配前綴時，應回傳空列表")
     void getSuggestions_NoMatch_ReturnsEmpty() {

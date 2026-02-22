@@ -16,6 +16,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * TransactionService 應用層單元測試類別。
+ * 驗證交易記錄（排行榜+索引）與排名查詢的業務邏輯。
+ * 展示 Redis Sorted Set 排行榜與 RediSearch 索引的協同應用。
+ * 所屬：金融子系統 — application 層
+ */
 @DisplayName("TransactionService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTest {
@@ -29,6 +35,7 @@ class TransactionServiceTest {
     @InjectMocks
     private TransactionService service;
 
+    // 驗證記錄交易時同時加入 Sorted Set 排行榜與搜尋索引
     @Test
     @DisplayName("recordTransaction_AddsToLeaderboardAndIndex — 記錄交易應同時加入排行榜和索引")
     void recordTransaction_AddsToLeaderboardAndIndex() {
@@ -44,6 +51,7 @@ class TransactionServiceTest {
         verify(searchPort).indexTransaction(tx);
     }
 
+    // 驗證取得交易排名時，正確委派給 TransactionRankingPort 並回傳排序結果
     @Test
     @DisplayName("getTopTransactions_DelegatesToRankingPort — 取得排名應委派給 TransactionRankingPort")
     void getTopTransactions_DelegatesToRankingPort() {

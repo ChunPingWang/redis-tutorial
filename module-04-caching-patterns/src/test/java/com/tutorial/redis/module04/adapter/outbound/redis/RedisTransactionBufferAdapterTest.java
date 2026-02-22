@@ -11,6 +11,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Redis 交易緩衝區適配器整合測試。
+ * 驗證 Write-Behind（寫回）模式中交易事件的緩衝、排空與批次處理機制。
+ * 使用 Redis List 實現 FIFO 佇列，先暫存交易再批次寫入資料庫。
+ * 屬於 Adapter 層（外部基礎設施適配器）。
+ */
 @DisplayName("RedisTransactionBufferAdapter 整合測試")
 class RedisTransactionBufferAdapterTest extends AbstractRedisIntegrationTest {
 
@@ -21,6 +27,7 @@ class RedisTransactionBufferAdapterTest extends AbstractRedisIntegrationTest {
         return new TransactionEvent(id, "ACC-001", 100.0, type, Instant.now());
     }
 
+    // 驗證交易事件緩衝後，排空操作能按 FIFO 順序取回所有事件
     @Test
     @DisplayName("buffer_AndDrain_ReturnsEvents — 緩衝後可排空取回事件")
     void buffer_AndDrain_ReturnsEvents() {
@@ -37,6 +44,7 @@ class RedisTransactionBufferAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(drained.get(1).getTransactionId()).isEqualTo("TXN-002");
     }
 
+    // 驗證緩衝區為空時，排空操作回傳空列表
     @Test
     @DisplayName("drainBatch_WhenEmpty_ReturnsEmptyList — 空緩衝區排空回傳空列表")
     void drainBatch_WhenEmpty_ReturnsEmptyList() {
@@ -45,6 +53,7 @@ class RedisTransactionBufferAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(drained).isEmpty();
     }
 
+    // 驗證多筆交易事件緩衝後，size 回傳正確的緩衝區大小
     @Test
     @DisplayName("size_WhenMultipleBuffered_ReturnsCount — 多筆緩衝後回傳正確數量")
     void size_WhenMultipleBuffered_ReturnsCount() {
@@ -57,6 +66,7 @@ class RedisTransactionBufferAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(size).isEqualTo(3);
     }
 
+    // 驗證排空操作遵守批次大小限制，僅取出指定數量且剩餘事件留在緩衝區
     @Test
     @DisplayName("drainBatch_RespectsBatchSize — 排空數量不超過批次上限")
     void drainBatch_RespectsBatchSize() {

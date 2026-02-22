@@ -16,6 +16,11 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
+/**
+ * 測試 ClusterDataService 的 Hash Tag 寫入邏輯。
+ * 驗證使用 Hash Tag 時，Key 是否正確組裝為 {tag}:subKey 格式，確保相關 Key 落在同一 Slot。
+ * 屬於 Application 層（用例服務），透過 Mock 驗證業務邏輯的正確性。
+ */
 @DisplayName("ClusterDataService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class ClusterDataServiceTest {
@@ -32,6 +37,7 @@ class ClusterDataServiceTest {
     @Captor
     private ArgumentCaptor<Map<String, String>> mapCaptor;
 
+    // 驗證使用 Hash Tag 寫入時，Key 被正確組裝為 {tag}:subKey 格式以確保落在同一 Slot
     @Test
     @DisplayName("writeWithHashTag_BuildsCorrectKeys — 使用 Hash Tag 寫入時，Key 格式應為 {tag}:subKey")
     void writeWithHashTag_BuildsCorrectKeys() {

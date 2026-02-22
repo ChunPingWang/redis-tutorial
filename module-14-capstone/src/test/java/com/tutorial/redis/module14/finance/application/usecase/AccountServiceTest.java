@@ -12,6 +12,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * AccountService 應用層單元測試類別。
+ * 驗證帳戶餘額快取與查詢的業務邏輯，使用 Mock 隔離 Redis 依賴。
+ * 展示透過 AccountCachePort 介面實現帳戶資料的快取讀寫。
+ * 所屬：金融子系統 — application 層
+ */
 @DisplayName("AccountService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
@@ -22,6 +28,7 @@ class AccountServiceTest {
     @InjectMocks
     private AccountService service;
 
+    // 驗證快取帳戶餘額時，正確委派給 AccountCachePort 設定餘額
     @Test
     @DisplayName("cacheAccountBalance_DelegatesToPort — 快取餘額應委派給 AccountCachePort")
     void cacheAccountBalance_DelegatesToPort() {
@@ -32,6 +39,7 @@ class AccountServiceTest {
         verify(accountCachePort).setBalance("acc-001", 1500.50);
     }
 
+    // 驗證取得帳戶餘額時，正確委派給 AccountCachePort 並回傳快取值
     @Test
     @DisplayName("getAccountBalance_DelegatesToPort — 取得餘額應委派給 AccountCachePort")
     void getAccountBalance_DelegatesToPort() {

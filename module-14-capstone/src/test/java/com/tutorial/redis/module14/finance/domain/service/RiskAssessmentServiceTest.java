@@ -6,11 +6,18 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * RiskAssessmentService 領域服務單元測試類別。
+ * 驗證交易風險評估的純領域邏輯：高風險判定與嚴重等級分類。
+ * 展示六角形架構中 domain 層業務規則的獨立測試，不依賴 Redis。
+ * 所屬：金融子系統 — domain 層
+ */
 @DisplayName("RiskAssessmentService 領域服務測試")
 class RiskAssessmentServiceTest {
 
     private final RiskAssessmentService service = new RiskAssessmentService();
 
+    // 驗證交易金額超過 10000 閾值時，應判定為高風險交易
     @Test
     @DisplayName("isHighRiskTransaction_WhenAboveThreshold_ReturnsTrue — 金額超過閾值應判定為高風險")
     void isHighRiskTransaction_WhenAboveThreshold_ReturnsTrue() {
@@ -25,6 +32,7 @@ class RiskAssessmentServiceTest {
         assertThat(result).isTrue();
     }
 
+    // 驗證交易金額低於 10000 閾值時，應判定為非高風險交易
     @Test
     @DisplayName("isHighRiskTransaction_WhenBelowThreshold_ReturnsFalse — 金額低於閾值應判定為非高風險")
     void isHighRiskTransaction_WhenBelowThreshold_ReturnsFalse() {
@@ -39,6 +47,7 @@ class RiskAssessmentServiceTest {
         assertThat(result).isFalse();
     }
 
+    // 驗證根據金額區間回傳正確的嚴重等級（LOW/MEDIUM/HIGH/CRITICAL）
     @Test
     @DisplayName("determineSeverity_ReturnsCorrectLevel — 根據金額回傳正確的嚴重等級")
     void determineSeverity_ReturnsCorrectLevel() {

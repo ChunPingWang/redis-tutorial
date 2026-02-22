@@ -11,6 +11,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * DistributedLockService 應用層單元測試類別。
+ * 驗證分散式鎖服務的取得鎖與釋放鎖邏輯，包含 Key 前綴組裝。
+ * 展示使用 Redis SET NX EX 實現分散式互斥鎖的應用層封裝。
+ * 所屬：共用分散式模式 — shared 層
+ */
 @DisplayName("DistributedLockService 單元測試")
 class DistributedLockServiceTest {
 
@@ -23,6 +29,7 @@ class DistributedLockServiceTest {
         lockService = new DistributedLockService(lockPort);
     }
 
+    // 驗證取得鎖時，服務層自動加上 lock: 前綴並委派給 DistributedLockPort
     @Test
     @DisplayName("acquireLock_DelegatesToPort — 取得鎖應委派給 Port 並加上 lock: 前綴")
     void acquireLock_DelegatesToPort() {
@@ -37,6 +44,7 @@ class DistributedLockServiceTest {
         verify(lockPort).tryLock("lock:resource-1", "owner-1", 30);
     }
 
+    // 驗證釋放鎖時，服務層自動加上 lock: 前綴並委派給 DistributedLockPort
     @Test
     @DisplayName("releaseLock_DelegatesToPort — 釋放鎖應委派給 Port 並加上 lock: 前綴")
     void releaseLock_DelegatesToPort() {

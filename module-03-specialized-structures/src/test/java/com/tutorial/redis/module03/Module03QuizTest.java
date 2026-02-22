@@ -13,6 +13,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Module 03 測驗測試類別
+ * 驗證學員對 Redis 進階資料結構的理解，涵蓋 Geo、Bitmap、HyperLogLog、
+ * Bloom Filter、Cuckoo Filter 與 TimeSeries 等特殊結構的觀念題
+ * 屬於模組層級的整合測驗，需達到 80% 以上正確率方可通過
+ */
 @DisplayName("Module 03 Quiz — Redis 進階資料結構")
 class Module03QuizTest {
 
@@ -123,6 +129,7 @@ class Module03QuizTest {
             )
     );
 
+    // 驗證全部 10 題答對時，測驗結果為通過且分數為 1.0
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -145,6 +152,7 @@ class Module03QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(10);
     }
 
+    // 驗證答對 8 題（80%）時仍可通過測驗門檻
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 8/10 正確")
     void quiz_PassesAt80Percent() {
@@ -167,6 +175,7 @@ class Module03QuizTest {
         assertThat(result.score()).isEqualTo(8.0 / 10.0);
     }
 
+    // 驗證答對 7 題（70%）時低於 80% 門檻，測驗不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 7/10 正確")
     void quiz_FailsBelow80Percent() {

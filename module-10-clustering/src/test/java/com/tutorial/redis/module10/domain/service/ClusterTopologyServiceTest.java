@@ -9,11 +9,17 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 測試 ClusterTopologyService 的叢集拓撲生成邏輯。
+ * 驗證推薦拓撲的節點數量、Master/Replica 比例，以及 16384 個 Hash Slot 的完整覆蓋與無間隙分配。
+ * 屬於 Domain 層（領域服務），測試純業務邏輯，不依賴外部基礎設施。
+ */
 @DisplayName("ClusterTopologyService 領域服務測試")
 class ClusterTopologyServiceTest {
 
     private final ClusterTopologyService service = new ClusterTopologyService();
 
+    // 驗證預設推薦拓撲產生 6 個節點（3 Master + 3 Replica）且涵蓋全部 16384 個 Slot
     @Test
     @DisplayName("generateRecommendedTopology_ReturnsSixNodes — 推薦拓撲應有 6 個節點 (3 Master + 3 Replica)")
     void generateRecommendedTopology_ReturnsSixNodes() {
@@ -27,6 +33,7 @@ class ClusterTopologyServiceTest {
         assertThat(topology.getTotalSlots()).isEqualTo(16384);
     }
 
+    // 驗證 Master 節點的 Slot 範圍從 0 到 16383 完整覆蓋且無間隙
     @Test
     @DisplayName("generateRecommendedTopology_CoverAllSlots — 推薦拓撲的 Master 應涵蓋所有 16384 個 Slot")
     void generateRecommendedTopology_CoverAllSlots() {
@@ -54,6 +61,7 @@ class ClusterTopologyServiceTest {
         }
     }
 
+    // 驗證自訂 Master 數量為 5 時，產生 10 個節點（5 Master + 5 Replica）
     @Test
     @DisplayName("generateTopology_CustomMasterCount_ReturnsCorrectNodes — 自訂 5 Master 拓撲應有 10 個節點")
     void generateTopology_CustomMasterCount_ReturnsCorrectNodes() {

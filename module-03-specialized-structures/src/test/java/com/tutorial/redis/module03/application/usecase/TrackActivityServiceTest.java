@@ -13,6 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 活動追蹤服務單元測試
+ * 驗證 TrackActivityService 正確委派 Bitmap 相關操作至 UserActivityPort
+ * 使用 Mockito 隔離外部依賴，屬於 Application 層（使用案例）
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TrackActivityService 單元測試")
 class TrackActivityServiceTest {
@@ -23,6 +28,7 @@ class TrackActivityServiceTest {
     @InjectMocks
     private TrackActivityService service;
 
+    // 驗證記錄每日活動時正確委派至 UserActivityPort.recordActivity
     @Test
     @DisplayName("recordDailyActivity_DelegatesToPort — 委派至 Port 的 recordActivity 方法")
     void recordDailyActivity_DelegatesToPort() {
@@ -31,6 +37,7 @@ class TrackActivityServiceTest {
         verify(userActivityPort).recordActivity("USER-001", "202602", 15);
     }
 
+    // 驗證查詢某日是否活躍時正確委派至 UserActivityPort.isActive 並回傳結果
     @Test
     @DisplayName("wasActiveOnDay_DelegatesToPort — 委派至 Port 的 isActive 方法")
     void wasActiveOnDay_DelegatesToPort() {
@@ -42,6 +49,7 @@ class TrackActivityServiceTest {
         verify(userActivityPort).isActive("USER-001", "202602", 15);
     }
 
+    // 驗證取得月活動報告時正確建構 UserActivity 物件並計算活躍天數
     @Test
     @DisplayName("getMonthlyActivity_BuildsUserActivity — 建構 UserActivity 物件驗證活躍天數")
     void getMonthlyActivity_BuildsUserActivity() {

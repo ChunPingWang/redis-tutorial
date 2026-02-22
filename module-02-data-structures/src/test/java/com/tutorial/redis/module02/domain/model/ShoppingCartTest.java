@@ -9,6 +9,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 購物車領域模型測試
+ * 驗證 ShoppingCart 的商品查詢、項目計數、總金額計算與空購物車判斷。
+ * 對應 Redis Hash 結構，每個 field 為一個 CartItem。
+ * 層級：Domain（領域模型）
+ */
 @DisplayName("ShoppingCart 領域模型測試")
 class ShoppingCartTest {
 
@@ -16,6 +22,7 @@ class ShoppingCartTest {
         return new CartItem(productId, name, new BigDecimal(price), qty);
     }
 
+    // 驗證使用合法參數建構 ShoppingCart 後客戶 ID 與項目數正確
     @Test
     @DisplayName("constructor_WhenValidArgs_CreatesCart — 建立有效的購物車")
     void constructor_WhenValidArgs_CreatesCart() {
@@ -28,6 +35,7 @@ class ShoppingCartTest {
         assertThat(cart.itemCount()).isEqualTo(1);
     }
 
+    // 驗證透過商品 ID 查詢存在的商品回傳 Present，不存在回傳 Empty
     @Test
     @DisplayName("getItem_WhenExists_ReturnsItem — 取得存在的商品")
     void getItem_WhenExists_ReturnsItem() {
@@ -42,6 +50,7 @@ class ShoppingCartTest {
         assertThat(cart.getItem("P-999")).isEmpty();
     }
 
+    // 驗證購物車總金額為所有項目小計之總和
     @Test
     @DisplayName("totalAmount_WhenMultipleItems_ReturnsSumOfSubtotals — 計算購物車總金額")
     void totalAmount_WhenMultipleItems_ReturnsSumOfSubtotals() {
@@ -54,6 +63,7 @@ class ShoppingCartTest {
         assertThat(cart.totalAmount()).isEqualByComparingTo(new BigDecimal("99.97"));
     }
 
+    // 驗證無商品的購物車 isEmpty 回傳 true、itemCount 回傳 0
     @Test
     @DisplayName("isEmpty_WhenNoItems_ReturnsTrue — 空購物車回傳 true")
     void isEmpty_WhenNoItems_ReturnsTrue() {

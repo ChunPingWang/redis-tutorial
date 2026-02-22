@@ -13,6 +13,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Module 04 測驗測試類別。
+ * 驗證學習者對 Redis 快取模式（Cache-Aside、Read-Through、Write-Behind、TTL 策略、Cache Stampede Protection）的理解。
+ * 涵蓋快取穿透、快取雪崩、快取擊穿等核心概念的問答驗證。
+ * 屬於模組層級的整合測驗。
+ */
 @DisplayName("Module 04 Quiz — Redis 快取模式")
 class Module04QuizTest {
 
@@ -123,6 +129,7 @@ class Module04QuizTest {
             )
     );
 
+    // 驗證全部答對時測驗通過且分數為滿分
     @Test
     @DisplayName("Quiz 滿分驗證 — 全部答對應通過")
     void quiz_PassesWithFullScore() {
@@ -145,6 +152,7 @@ class Module04QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(10);
     }
 
+    // 驗證答對 80%（8/10）時測驗仍然通過
     @Test
     @DisplayName("Quiz 80% 正確仍通過 — 8/10 正確")
     void quiz_PassesAt80Percent() {
@@ -167,6 +175,7 @@ class Module04QuizTest {
         assertThat(result.score()).isEqualTo(8.0 / 10.0);
     }
 
+    // 驗證答對低於 80%（7/10）時測驗不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過 — 7/10 正確")
     void quiz_FailsBelow80Percent() {

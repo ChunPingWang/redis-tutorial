@@ -11,12 +11,19 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 驗證 RedisMessagePublisherAdapter 的 Pub/Sub 發布功能。
+ * 測試透過 Redis PUBLISH 命令發送消息至頻道，
+ * 並由訂閱者即時接收，展示 fire-and-forget 的訊息傳遞模式。
+ * 所屬層級：Adapter 層（outbound Redis 整合測試）
+ */
 @DisplayName("RedisMessagePublisherAdapter 整合測試")
 class RedisMessagePublisherAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisMessagePublisherAdapter publisherAdapter;
 
+    // 驗證透過 Pub/Sub 發布消息後，訂閱者能即時收到正確的訊息內容
     @Test
     @DisplayName("publish_SendsMessageToChannel — 發布消息到 Pub/Sub 頻道後，訂閱者應收到正確訊息")
     void publish_SendsMessageToChannel() throws InterruptedException {

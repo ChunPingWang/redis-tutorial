@@ -13,6 +13,12 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+/**
+ * 驗證 RedisConsumerGroupAdapter 的 Consumer Group 操作功能。
+ * 涵蓋 XREADGROUP（群組讀取）、XACK（確認消息）、XPENDING（待處理消息查詢）
+ * 以及 Consumer Group 的建立與重複建立的容錯處理。
+ * 所屬層級：Adapter 層（outbound Redis 整合測試）
+ */
 @DisplayName("RedisConsumerGroupAdapter 整合測試")
 class RedisConsumerGroupAdapterTest extends AbstractRedisIntegrationTest {
 
@@ -22,6 +28,7 @@ class RedisConsumerGroupAdapterTest extends AbstractRedisIntegrationTest {
     @Autowired
     private RedisStreamProducerAdapter producerAdapter;
 
+    // 驗證建立 Consumer Group 後透過 XREADGROUP 讀取，能正確取得所有已寫入的消息
     @Test
     @DisplayName("createGroup_AndReadFromGroup_ReturnsMessages — 建立 Consumer Group 後讀取，應回傳所有已新增的消息")
     void createGroup_AndReadFromGroup_ReturnsMessages() {
@@ -44,6 +51,7 @@ class RedisConsumerGroupAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(messages.get(2).getPayload()).containsEntry("event", "logout");
     }
 
+    // 驗證 XACK 確認消息後，該消息會從 Pending Entries List（PEL）中移除
     @Test
     @DisplayName("acknowledge_RemovesFromPending — 讀取消息後確認，pending 列表應為空")
     void acknowledge_RemovesFromPending() {
@@ -72,6 +80,7 @@ class RedisConsumerGroupAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(pendingAfter).isEmpty();
     }
 
+    // 驗證重複建立同名 Consumer Group 時不會拋出例外（冪等操作）
     @Test
     @DisplayName("createGroup_WhenAlreadyExists_DoesNotThrow — 重複建立相同 Consumer Group 不應拋出例外")
     void createGroup_WhenAlreadyExists_DoesNotThrow() {

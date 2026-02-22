@@ -12,6 +12,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 驗證 RedisEventStoreAdapter 的事件儲存與讀取功能。
+ * 透過 XADD 將帳戶事件寫入 Redis Stream，並以 XREAD/XRANGE 讀取，
+ * 展示如何使用 Redis Streams 實作 Event Store。
+ * 所屬層級：Adapter 層（outbound Redis 整合測試）
+ */
 @DisplayName("RedisEventStoreAdapter 整合測試")
 class RedisEventStoreAdapterTest extends AbstractRedisIntegrationTest {
 
@@ -21,6 +27,7 @@ class RedisEventStoreAdapterTest extends AbstractRedisIntegrationTest {
     private static final String ACCOUNT_ID = "acc-test-001";
     private static final String STREAM_KEY = "event:account:" + ACCOUNT_ID;
 
+    // 驗證透過 XADD 依序寫入 3 筆帳戶事件後，readAllEvents 能正確讀取全部事件及其屬性
     @Test
     @DisplayName("appendAndReadAll_ReturnsEvents — 依序新增 3 筆事件後讀取全部，應回傳正確的事件類型與金額")
     void appendAndReadAll_ReturnsEvents() {
@@ -60,6 +67,7 @@ class RedisEventStoreAdapterTest extends AbstractRedisIntegrationTest {
         });
     }
 
+    // 驗證從指定 Message ID 開始讀取事件，僅回傳該 ID（含）之後的事件
     @Test
     @DisplayName("readEventsFrom_ReturnsSubsequentEvents — 新增 3 筆事件後從第 2 筆 ID 開始讀取，應回傳 2 筆事件")
     void readEventsFrom_ReturnsSubsequentEvents() {

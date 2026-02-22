@@ -10,9 +10,16 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * 交易紀錄領域模型測試
+ * 驗證 Transaction 的建構子驗證邏輯與 TransactionType 列舉值。
+ * 對應 Redis List 中序列化儲存的交易物件。
+ * 層級：Domain（領域模型）
+ */
 @DisplayName("Transaction 領域模型測試")
 class TransactionTest {
 
+    // 驗證使用合法參數建構 Transaction 後各欄位值正確
     @Test
     @DisplayName("constructor_WhenValidArgs_CreatesTransaction — 建立有效的交易紀錄")
     void constructor_WhenValidArgs_CreatesTransaction() {
@@ -28,6 +35,7 @@ class TransactionTest {
         assertThat(tx.getDescription()).isEqualTo("Salary deposit");
     }
 
+    // 驗證 transactionId 為 null 時拋出 NullPointerException
     @Test
     @DisplayName("constructor_WhenNullTransactionId_ThrowsNPE — null transactionId 拋出 NullPointerException")
     void constructor_WhenNullTransactionId_ThrowsNPE() {
@@ -37,6 +45,7 @@ class TransactionTest {
                 .hasMessageContaining("transactionId");
     }
 
+    // 驗證 TransactionType 列舉包含 DEPOSIT、WITHDRAWAL、TRANSFER 三種類型
     @Test
     @DisplayName("type_Enum_HasExpectedValues — TransactionType 包含 DEPOSIT, WITHDRAWAL, TRANSFER")
     void type_Enum_HasExpectedValues() {

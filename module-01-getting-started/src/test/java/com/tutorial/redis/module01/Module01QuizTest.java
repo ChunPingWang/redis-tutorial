@@ -9,6 +9,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Module 01 隨堂測驗測試
+ * 驗證學員對 Redis 入門知識的掌握程度，包含 port、資料存儲方式、
+ * 單執行緒架構、Lettuce/Jedis 差異、Key 命名慣例與 TTL 等核心觀念。
+ * 層級：模組層級測驗（跨層級概念驗證）
+ */
 @DisplayName("Module 01 Quiz — Redis 入門與連線管理")
 class Module01QuizTest {
 
@@ -69,6 +75,7 @@ class Module01QuizTest {
             )
     );
 
+    // 驗證全部答對時測驗通過且分數為滿分
     @Test
     @DisplayName("Quiz 通過率需達 80%（滿分驗證）")
     void quiz_WhenAllCorrect_Passes() {
@@ -85,6 +92,7 @@ class Module01QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(10);
     }
 
+    // 驗證答對 80% 時仍可通過測驗門檻
     @Test
     @DisplayName("Quiz 80% 正確仍通過")
     void quiz_When80Percent_StillPasses() {
@@ -100,6 +108,7 @@ class Module01QuizTest {
         assertThat(result.correctAnswers()).isEqualTo(8);
     }
 
+    // 驗證答對率低於 80% 時測驗不通過
     @Test
     @DisplayName("Quiz 低於 80% 不通過")
     void quiz_WhenBelow80Percent_Fails() {

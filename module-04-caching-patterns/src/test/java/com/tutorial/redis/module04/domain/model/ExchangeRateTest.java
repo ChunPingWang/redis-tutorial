@@ -8,9 +8,16 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * 匯率領域模型測試。
+ * 驗證 ExchangeRate 物件的建構與參數驗證邏輯。
+ * 確保不合法的貨幣對或匯率值在建構時即被拒絕，維護領域模型的不變量。
+ * 屬於 Domain 層（領域模型）。
+ */
 @DisplayName("ExchangeRate 領域模型測試")
 class ExchangeRateTest {
 
+    // 驗證使用有效參數可正確建立 ExchangeRate 物件
     @Test
     @DisplayName("constructor_Valid — 有效參數建立匯率物件成功")
     void constructor_Valid() {
@@ -23,6 +30,7 @@ class ExchangeRateTest {
         assertThat(rate.getTimestamp()).isEqualTo(now);
     }
 
+    // 驗證貨幣對為 null 時拋出 NullPointerException
     @Test
     @DisplayName("constructor_NullPair_ThrowsNPE — 貨幣對為 null 時拋出 NullPointerException")
     void constructor_NullPair_ThrowsNPE() {
@@ -31,6 +39,7 @@ class ExchangeRateTest {
                 .hasMessageContaining("currencyPair must not be null");
     }
 
+    // 驗證匯率為負值時拋出 IllegalArgumentException
     @Test
     @DisplayName("constructor_NegativeRate_ThrowsIAE — 負匯率時拋出 IllegalArgumentException")
     void constructor_NegativeRate_ThrowsIAE() {

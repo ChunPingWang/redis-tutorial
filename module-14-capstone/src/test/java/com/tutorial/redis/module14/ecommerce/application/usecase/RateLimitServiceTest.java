@@ -13,6 +13,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * RateLimitService 應用層單元測試類別。
+ * 驗證速率限制服務正確組裝 Key 前綴並委派給 RateLimiterPort。
+ * 展示 Redis 計數器搭配 TTL 實現 API 限流的應用層邏輯。
+ * 所屬：電商子系統 — application 層
+ */
 @DisplayName("RateLimitService 單元測試")
 @ExtendWith(MockitoExtension.class)
 class RateLimitServiceTest {
@@ -23,6 +29,7 @@ class RateLimitServiceTest {
     @InjectMocks
     private RateLimitService rateLimitService;
 
+    // 驗證檢查速率限制時，正確組裝 Key 並委派給 RateLimiterPort
     @Test
     @DisplayName("checkRateLimit_DelegatesToPort — 檢查速率限制應委派給 RateLimiterPort")
     void checkRateLimit_DelegatesToPort() {

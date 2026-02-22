@@ -11,6 +11,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 驗證 RedisSearchIndexAdapter 的索引管理功能整合測試。
+ * 測試 RediSearch 的 FT.CREATE（建立索引）、FT._LIST（檢查索引存在）、FT.DROPINDEX（刪除索引）指令。
+ * 此測試屬於適配器層 (adapter)，確認索引的建立、存在檢查與刪除操作的正確性。
+ */
 @DisplayName("RedisSearchIndexAdapter 整合測試")
 class RedisSearchIndexAdapterTest extends AbstractRedisModuleIntegrationTest {
 
@@ -20,6 +25,7 @@ class RedisSearchIndexAdapterTest extends AbstractRedisModuleIntegrationTest {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    // 驗證使用 FT.CREATE 建立包含 TEXT 與 NUMERIC 欄位的索引後，indexExists 應回傳 true
     @Test
     @DisplayName("createIndex_AndCheckExists_ReturnsTrue — 建立索引後檢查存在，應回傳 true")
     void createIndex_AndCheckExists_ReturnsTrue() {
@@ -36,6 +42,7 @@ class RedisSearchIndexAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(exists).isTrue();
     }
 
+    // 驗證查詢不存在的索引名稱時，indexExists 應回傳 false
     @Test
     @DisplayName("indexExists_WhenNotCreated_ReturnsFalse — 未建立索引時檢查，應回傳 false")
     void indexExists_WhenNotCreated_ReturnsFalse() {
@@ -46,6 +53,7 @@ class RedisSearchIndexAdapterTest extends AbstractRedisModuleIntegrationTest {
         assertThat(exists).isFalse();
     }
 
+    // 驗證使用 FT.DROPINDEX 刪除索引後，該索引應不再存在
     @Test
     @DisplayName("dropIndex_RemovesIndex — 建立索引後刪除，應不再存在")
     void dropIndex_RemovesIndex() {

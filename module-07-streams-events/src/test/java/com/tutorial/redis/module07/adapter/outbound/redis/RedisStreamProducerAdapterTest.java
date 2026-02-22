@@ -11,12 +11,19 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 驗證 RedisStreamProducerAdapter 的 Stream 生產者操作功能。
+ * 涵蓋 XADD（寫入消息）、XREAD（讀取消息）、XRANGE（範圍查詢）
+ * 以及 XTRIM（裁剪 Stream 長度）等核心 Redis Streams 命令。
+ * 所屬層級：Adapter 層（outbound Redis 整合測試）
+ */
 @DisplayName("RedisStreamProducerAdapter 整合測試")
 class RedisStreamProducerAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisStreamProducerAdapter adapter;
 
+    // 驗證 XADD 寫入消息後回傳的 Message ID 格式正確（包含 "-" 分隔符）
     @Test
     @DisplayName("addToStream_ReturnsMessageId — 新增消息到 Stream 後，應回傳非空的 Message ID")
     void addToStream_ReturnsMessageId() {
@@ -32,6 +39,7 @@ class RedisStreamProducerAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(messageId).contains("-");
     }
 
+    // 驗證 XREAD 能正確讀取已寫入的多筆消息，且 payload 與寫入時一致
     @Test
     @DisplayName("readMessages_ReturnsAddedMessages — 新增 3 筆消息後讀取，應回傳 3 筆且 payload 正確")
     void readMessages_ReturnsAddedMessages() {
@@ -56,6 +64,7 @@ class RedisStreamProducerAdapterTest extends AbstractRedisIntegrationTest {
         });
     }
 
+    // 驗證 XRANGE 能根據起始與結束 Message ID 回傳指定範圍內的消息
     @Test
     @DisplayName("rangeMessages_ReturnsMessagesInRange — 新增 3 筆消息後以範圍查詢，應回傳指定範圍內的全部消息")
     void rangeMessages_ReturnsMessagesInRange() {
@@ -75,6 +84,7 @@ class RedisStreamProducerAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(messages.get(2).getMessageId()).isEqualTo(id3);
     }
 
+    // 驗證 XTRIM 能將 Stream 裁剪至指定長度，移除最舊的消息
     @Test
     @DisplayName("trimStream_ReducesStreamLength — 新增 5 筆消息後裁剪至 2 筆，應僅保留 2 筆消息")
     void trimStream_ReducesStreamLength() {

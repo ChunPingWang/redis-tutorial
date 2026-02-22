@@ -16,6 +16,12 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * 驗證 ManageStreamService 的 Stream 管理應用服務邏輯。
+ * 測試消息寫入（XADD）與讀取（XREAD）操作是否正確委派給 StreamProducerPort，
+ * 確保 Application 層不包含 Redis 操作細節。
+ * 所屬層級：Application 層（Use Case 單元測試，使用 Mock 隔離）
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ManageStreamService 單元測試")
 class ManageStreamServiceTest {
@@ -26,6 +32,7 @@ class ManageStreamServiceTest {
     @InjectMocks
     private ManageStreamService service;
 
+    // 驗證新增消息時正確委派給 StreamProducerPort，並回傳對應的 Message ID
     @Test
     @DisplayName("addMessage_DelegatesToPort — 新增消息應委派給 StreamProducerPort.addToStream")
     void addMessage_DelegatesToPort() {
@@ -42,6 +49,7 @@ class ManageStreamServiceTest {
         verify(streamProducerPort, times(1)).addToStream(streamKey, fields);
     }
 
+    // 驗證讀取消息時正確委派給 StreamProducerPort，並回傳完整的消息列表
     @Test
     @DisplayName("readMessages_DelegatesToPort — 讀取消息應委派給 StreamProducerPort.readMessages")
     void readMessages_DelegatesToPort() {

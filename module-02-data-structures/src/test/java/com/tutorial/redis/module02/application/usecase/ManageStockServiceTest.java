@@ -16,6 +16,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 庫存管理 Use Case 單元測試
+ * 驗證 ManageStockService 正確委派操作至 StockLevelPort（Redis String INCR/DECR）。
+ * 層級：Application（Use Case 業務邏輯）
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ManageStockService 單元測試")
 class ManageStockServiceTest {
@@ -26,6 +31,7 @@ class ManageStockServiceTest {
     @InjectMocks
     private ManageStockService service;
 
+    // 驗證補貨操作正確委派至 Port 的 increment，回傳新庫存值
     @Test
     @DisplayName("restockProduct_DelegatesToPort_Increment — 委派至 Port 的 increment 方法")
     void restockProduct_DelegatesToPort_Increment() {
@@ -37,6 +43,7 @@ class ManageStockServiceTest {
         verify(stockLevelPort).increment("PROD-001", 10);
     }
 
+    // 驗證購買操作正確委派至 Port 的 decrement，回傳新庫存值
     @Test
     @DisplayName("purchaseProduct_DelegatesToPort_Decrement — 委派至 Port 的 decrement 方法")
     void purchaseProduct_DelegatesToPort_Decrement() {
@@ -48,6 +55,7 @@ class ManageStockServiceTest {
         verify(stockLevelPort).decrement("PROD-001", 5);
     }
 
+    // 驗證查詢庫存時正確委派至 Port 的 getLevel
     @Test
     @DisplayName("getStockLevel_DelegatesToPort — 委派至 Port 的 getLevel 方法")
     void getStockLevel_DelegatesToPort() {
@@ -60,6 +68,7 @@ class ManageStockServiceTest {
         verify(stockLevelPort).getLevel("PROD-001");
     }
 
+    // 驗證批次查詢庫存時正確委派至 Port 的 batchGetLevels
     @Test
     @DisplayName("getStockLevels_DelegatesToPort — 委派至 Port 的 batchGetLevels 方法")
     void getStockLevels_DelegatesToPort() {

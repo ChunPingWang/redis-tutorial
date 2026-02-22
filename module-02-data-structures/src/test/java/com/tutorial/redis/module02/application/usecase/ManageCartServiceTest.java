@@ -18,6 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * 購物車管理 Use Case 單元測試
+ * 驗證 ManageCartService 正確委派操作至 ShoppingCartPort（Redis Hash）。
+ * 層級：Application（Use Case 業務邏輯）
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ManageCartService 單元測試")
 class ManageCartServiceTest {
@@ -28,6 +33,7 @@ class ManageCartServiceTest {
     @InjectMocks
     private ManageCartService service;
 
+    // 驗證新增商品至購物車時正確委派至 Port 的 addItem
     @Test
     @DisplayName("addToCart_DelegatesToPort — 委派至 Port 的 addItem 方法")
     void addToCart_DelegatesToPort() {
@@ -38,6 +44,7 @@ class ManageCartServiceTest {
         verify(shoppingCartPort).addItem("CUST-001", item);
     }
 
+    // 驗證移除購物車商品時正確委派至 Port 的 removeItem
     @Test
     @DisplayName("removeFromCart_DelegatesToPort — 委派至 Port 的 removeItem 方法")
     void removeFromCart_DelegatesToPort() {
@@ -46,6 +53,7 @@ class ManageCartServiceTest {
         verify(shoppingCartPort).removeItem("CUST-001", "P-001");
     }
 
+    // 驗證取得購物車時正確委派至 Port 的 getCart，並回傳結果
     @Test
     @DisplayName("getCart_DelegatesToPort — 委派至 Port 的 getCart 方法")
     void getCart_DelegatesToPort() {
@@ -59,6 +67,7 @@ class ManageCartServiceTest {
         verify(shoppingCartPort).getCart("CUST-001");
     }
 
+    // 驗證清空購物車時正確委派至 Port 的 deleteCart
     @Test
     @DisplayName("clearCart_DelegatesToPort — 委派至 Port 的 deleteCart 方法")
     void clearCart_DelegatesToPort() {

@@ -14,12 +14,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Redis 原子庫存扣減 Adapter 整合測試 — 驗證透過 Lua Script 實現的原子性庫存扣減。
+ * 展示 Redis Lua Script 技術：將「檢查庫存」與「扣減庫存」合併為原子操作，防止並發超賣。
+ * 所屬層級：Adapter 層（outbound），負責與 Redis 的實際交互。
+ */
 @DisplayName("RedisAtomicStockDeductionAdapter 整合測試")
 class RedisAtomicStockDeductionAdapterTest extends AbstractRedisIntegrationTest {
 
     @Autowired
     private RedisAtomicStockDeductionAdapter adapter;
 
+    // 驗證庫存充足時，Lua Script 扣減成功並正確更新剩餘庫存
     @Test
     @DisplayName("deductStock_WhenSufficientStock_ReturnsSuccess — 庫存充足時扣減成功")
     void deductStock_WhenSufficientStock_ReturnsSuccess() {
@@ -36,6 +42,7 @@ class RedisAtomicStockDeductionAdapterTest extends AbstractRedisIntegrationTest 
         assertThat(remaining.get()).isEqualTo(70L);
     }
 
+    // 驗證庫存不足時，Lua Script 拒絕扣減並回傳 INSUFFICIENT_STOCK，庫存維持不變
     @Test
     @DisplayName("deductStock_WhenInsufficientStock_ReturnsInsufficient — 庫存不足時回傳 INSUFFICIENT_STOCK 且庫存不變")
     void deductStock_WhenInsufficientStock_ReturnsInsufficient() {
@@ -52,6 +59,7 @@ class RedisAtomicStockDeductionAdapterTest extends AbstractRedisIntegrationTest 
         assertThat(remaining.get()).isEqualTo(10L);
     }
 
+    // 驗證商品 key 不存在時，回傳 KEY_NOT_FOUND 狀態
     @Test
     @DisplayName("deductStock_WhenKeyNotFound_ReturnsKeyNotFound — key 不存在時回傳 KEY_NOT_FOUND")
     void deductStock_WhenKeyNotFound_ReturnsKeyNotFound() {
@@ -62,6 +70,7 @@ class RedisAtomicStockDeductionAdapterTest extends AbstractRedisIntegrationTest 
         assertThat(result).isEqualTo(StockDeductionResult.KEY_NOT_FOUND);
     }
 
+    // 驗證 20 個執行緒同時扣減庫存時，Lua Script 的原子性確保不會超賣
     @Test
     @DisplayName("deductStock_ConcurrentDeductions_NeverOversells — 20 執行緒並發扣減不會超賣")
     void deductStock_ConcurrentDeductions_NeverOversells() throws InterruptedException {

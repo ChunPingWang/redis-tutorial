@@ -14,6 +14,11 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 購物車 Adapter 整合測試
+ * 驗證使用 Redis Hash（HSET/HGET/HDEL/HGETALL）實作購物車的 CRUD 操作。
+ * 層級：Adapter（外部端口實作）
+ */
 @DisplayName("RedisShoppingCartAdapter 整合測試")
 class RedisShoppingCartAdapterTest extends AbstractRedisIntegrationTest {
 
@@ -24,6 +29,7 @@ class RedisShoppingCartAdapterTest extends AbstractRedisIntegrationTest {
         return new CartItem(productId, name, new BigDecimal(price), qty);
     }
 
+    // 驗證 HSET 將商品新增至空購物車，並能透過 HGET 正確讀取
     @Test
     @DisplayName("addItem_WhenNewCart_CreatesCartWithItem — 新增商品到空購物車")
     void addItem_WhenNewCart_CreatesCartWithItem() {
@@ -38,6 +44,7 @@ class RedisShoppingCartAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(retrieved.get().getUnitPrice()).isEqualByComparingTo(new BigDecimal("29.99"));
     }
 
+    // 驗證對已有商品的購物車再次 HSET 新增不同商品
     @Test
     @DisplayName("addItem_WhenExistingCart_AddsToCart — 新增商品到已有購物車")
     void addItem_WhenExistingCart_AddsToCart() {
@@ -51,6 +58,7 @@ class RedisShoppingCartAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(cart.get().getItem("P-002")).isPresent();
     }
 
+    // 驗證 HDEL 能移除購物車中的指定商品，其他商品不受影響
     @Test
     @DisplayName("removeItem_WhenItemExists_RemovesFromCart — 移除購物車中的商品")
     void removeItem_WhenItemExists_RemovesFromCart() {
@@ -65,6 +73,7 @@ class RedisShoppingCartAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(remaining).isPresent();
     }
 
+    // 驗證透過 HSET 部分更新（partial update）商品數量
     @Test
     @DisplayName("updateItemQuantity_WhenItemExists_UpdatesQuantity — 更新購物車商品數量")
     void updateItemQuantity_WhenItemExists_UpdatesQuantity() {
@@ -77,6 +86,7 @@ class RedisShoppingCartAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(updated.get().getQuantity()).isEqualTo(5);
     }
 
+    // 驗證 HGETALL 能取得購物車的完整商品資料
     @Test
     @DisplayName("getCart_WhenMultipleItems_ReturnsFullCart — 取得完整購物車資料")
     void getCart_WhenMultipleItems_ReturnsFullCart() {
@@ -92,6 +102,7 @@ class RedisShoppingCartAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(cart.get().getItems()).containsKeys("P-001", "P-002", "P-003");
     }
 
+    // 驗證 DEL 指令能完全刪除購物車 Hash key
     @Test
     @DisplayName("deleteCart_WhenCartExists_RemovesAll — 清空購物車")
     void deleteCart_WhenCartExists_RemovesAll() {
@@ -104,6 +115,7 @@ class RedisShoppingCartAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(shoppingCartPort.getCart("CUST-006")).isEmpty();
     }
 
+    // 驗證 Redis key 遵循 ecommerce:cart:{customerId} 命名規範
     @Test
     @DisplayName("key_FollowsNamingConvention — 驗證 key 符合 ecommerce:cart:* 命名規範")
     void key_FollowsNamingConvention() {

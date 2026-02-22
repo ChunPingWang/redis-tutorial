@@ -13,6 +13,11 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 交易排行榜 Adapter 整合測試
+ * 驗證使用 Redis Sorted Set（ZADD/ZSCORE/ZREVRANGE/ZREVRANK/ZCOUNT/ZREM）實作排行榜。
+ * 層級：Adapter（外部端口實作）
+ */
 @DisplayName("RedisTransactionRankingAdapter 整合測試")
 class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
 
@@ -21,6 +26,7 @@ class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
     @Autowired
     private TransactionRankingPort rankingPort;
 
+    // 驗證 ZADD 新增成員至 Sorted Set，並能透過 ZSCORE 查詢分數
     @Test
     @DisplayName("addOrUpdate_WhenNewMember_AddsToRanking — 新增成員至排行榜")
     void addOrUpdate_WhenNewMember_AddsToRanking() {
@@ -32,6 +38,7 @@ class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(rankingPort.count(RANKING_KEY)).isEqualTo(1);
     }
 
+    // 驗證 ZADD 對已存在的成員會更新其分數，不會重複新增
     @Test
     @DisplayName("addOrUpdate_WhenExistingMember_UpdatesScore — 更新已存在成員的分數")
     void addOrUpdate_WhenExistingMember_UpdatesScore() {
@@ -44,6 +51,7 @@ class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(rankingPort.count(RANKING_KEY)).isEqualTo(1);
     }
 
+    // 驗證 ZINCRBY 原子增量分數操作，回傳更新後的分數
     @Test
     @DisplayName("incrementScore_WhenCalled_ReturnsNewScore — 增量分數並回傳新值")
     void incrementScore_WhenCalled_ReturnsNewScore() {
@@ -54,6 +62,7 @@ class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(newScore).isEqualTo(75.0);
     }
 
+    // 驗證 ZREVRANGE 取得分數由高到低的前 N 名排行
     @Test
     @DisplayName("getTopN_WhenMultipleMembers_ReturnsSortedByScoreDesc — 取得 Top N 排名（降冪）")
     void getTopN_WhenMultipleMembers_ReturnsSortedByScoreDesc() {
@@ -74,6 +83,7 @@ class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(top3.get(2).getScore()).isEqualTo(300.0);
     }
 
+    // 驗證 ZREVRANK 回傳以 0 為基底的反向排名（最高分為 0）
     @Test
     @DisplayName("getReverseRank_ReturnsZeroBasedRank — 最高分 rank 為 0")
     void getReverseRank_ReturnsZeroBasedRank() {
@@ -87,6 +97,7 @@ class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(rank.get()).isEqualTo(0);
     }
 
+    // 驗證 ZSCORE 查詢指定成員的分數
     @Test
     @DisplayName("getScore_WhenMemberExists_ReturnsScore — 查詢成員分數")
     void getScore_WhenMemberExists_ReturnsScore() {
@@ -98,6 +109,7 @@ class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(score.get()).isEqualTo(123.45);
     }
 
+    // 驗證 ZREM 移除成員後，排行榜中不再包含該成員
     @Test
     @DisplayName("remove_WhenMemberExists_RemovesFromRanking — 移除成員")
     void remove_WhenMemberExists_RemovesFromRanking() {
@@ -110,6 +122,7 @@ class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(rankingPort.count(RANKING_KEY)).isEqualTo(0);
     }
 
+    // 驗證 ZCOUNT 統計指定分數範圍內的成員數量
     @Test
     @DisplayName("countByScoreRange_WhenInRange_ReturnsCount — 範圍分數計數")
     void countByScoreRange_WhenInRange_ReturnsCount() {
@@ -124,6 +137,7 @@ class RedisTransactionRankingAdapterTest extends AbstractRedisIntegrationTest {
         assertThat(count).isEqualTo(3);
     }
 
+    // 驗證 Redis key 遵循 ranking:{rankingKey} 命名規範
     @Test
     @DisplayName("key_FollowsNamingConvention — 驗證 key 符合 ranking:* 命名規範")
     void key_FollowsNamingConvention() {
