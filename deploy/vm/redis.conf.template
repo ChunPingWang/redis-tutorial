@@ -1,0 +1,101 @@
+# ============================================================
+# Redis 8 正式環境 redis.conf 範本（由 deploy/vm/install-redis.sh 渲染）
+# 佔位符：__PORT__ __BIND__ __PASSWORD__ __MAXMEMORY__ __DATA_DIR__ __LOG_DIR__
+# 每個設定的取捨請見 docs/03-deploy-vm.md 與 docs/04-performance-tuning.md
+# ============================================================
+
+# ---------- 網路 ----------
+# 只綁定內網介面；絕對不要把沒有密碼的 Redis 綁到 0.0.0.0 對外
+bind __BIND__
+port __PORT__
+protected-mode yes
+tcp-backlog 1024
+timeout 0
+tcp-keepalive 300
+
+# ---------- 行程 ----------
+# 交給 systemd 管理：不要 daemonize；supervised systemd 讓 Redis 啟動完成時通知 systemd
+daemonize no
+supervised systemd
+pidfile /run/redis/redis.pid
+
+# ---------- 認證 ----------
+# 舊式單一密碼；正式環境建議進一步用 ACL 建立最小權限帳號（docs/06-operations.md）
+requirepass __PASSWORD__
+
+# ---------- 日誌 ----------
+loglevel notice
+logfile __LOG_DIR__/redis.log
+
+# ---------- 資料庫 ----------
+databases 16
+dir __DATA_DIR__
+
+# ---------- 記憶體 ----------
+# 一定要設 maxmemory：沒設的話 Redis 會用到 OOM 被系統殺掉
+# 建議 ≤ 實體記憶體的 60–70%，替 fork（RDB/AOF rewrite）與 OS 留空間
+maxmemory __MAXMEMORY__
+# 純快取：allkeys-lru；有不可丟資料：noeviction（配合監控）
+maxmemory-policy allkeys-lru
+maxmemory-samples 5
+
+# ---------- 持久化：RDB ----------
+# 「3600 秒內 ≥1 次寫入」或「300 秒內 ≥100 次」或「60 秒內 ≥10000 次」就做快照
+save 3600 1 300 100 60 10000
+stop-writes-on-bgsave-error yes
+rdbcompression yes
+rdbchecksum yes
+dbfilename dump.rdb
+
+# ---------- 持久化：AOF（混合模式）----------
+appendonly yes
+appendfilename "appendonly.aof"
+appenddirname "appendonlydir"
+# everysec：最多遺失 1 秒資料，效能接近不 fsync；always 太慢、no 太危險
+appendfsync everysec
+no-appendfsync-on-rewrite no
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+aof-load-truncated yes
+# AOF 檔開頭放 RDB 快照：重啟載入快、檔案小（Redis 4.0+，7.0 起預設）
+aof-use-rdb-preamble yes
+
+# ---------- 非同步釋放：避免刪除大 key 卡住主執行緒 ----------
+lazyfree-lazy-eviction yes
+lazyfree-lazy-expire yes
+lazyfree-lazy-server-del yes
+replica-lazy-flush yes
+lazyfree-lazy-user-del yes
+
+# ---------- I/O 執行緒（Redis 6+；多核機器、高連線數時打開）----------
+# 只有在單核用滿、且機器有 ≥4 核時才有幫助；預設關閉
+# io-threads 4
+# io-threads-do-reads yes
+
+# ---------- 慢查詢與延遲監控 ----------
+slowlog-log-slower-than 10000
+slowlog-max-len 256
+latency-monitor-threshold 100
+
+# ---------- 客戶端 ----------
+maxclients 10000
+# 輸出緩衝區上限：避免慢消費者（如 Pub/Sub 訂閱者）把記憶體吃光
+client-output-buffer-limit normal 0 0 0
+client-output-buffer-limit replica 256mb 64mb 60
+client-output-buffer-limit pubsub 32mb 8mb 60
+
+# ---------- 複寫（有 replica 時使用）----------
+# replicaof <master-ip> <master-port>
+# masterauth __PASSWORD__
+replica-read-only yes
+repl-diskless-sync yes
+repl-diskless-sync-delay 5
+repl-backlog-size 64mb
+min-replicas-to-write 0
+min-replicas-max-lag 10
+
+# ---------- 危險指令 ----------
+# 用 ACL 或 rename-command 收掉正式環境不該被客戶端呼叫的指令
+# rename-command FLUSHALL ""
+# rename-command FLUSHDB ""
+# rename-command DEBUG ""

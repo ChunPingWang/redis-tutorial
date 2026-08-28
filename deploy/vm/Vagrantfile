@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# 用 Vagrant 建一台乾淨的 Ubuntu 24.04 VM 來練習 VM 佈署
+#
+#   cd deploy/vm && vagrant up          # 建 VM 並自動執行 install-redis.sh
+#   vagrant ssh -c 'redis-cli -a redis-vm-pass --no-auth-warning ping'
+#   vagrant destroy -f                  # 練完刪掉
+#
+# 需要 Vagrant + VirtualBox（或 libvirt provider）。
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-24.04"
+  config.vm.hostname = "redis-vm"
+  config.vm.network "private_network", ip: "192.168.56.10"
+  # 從宿主機也能連：redis-cli -h 127.0.0.1 -p 16379
+  config.vm.network "forwarded_port", guest: 6379, host: 16379
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "redis-tutorial-vm"
+    vb.memory = 2048
+    vb.cpus = 2
+  end
+
+  # 把 repo 的 deploy/vm 目錄同步進 VM，直接跑同一份腳本
+  config.vm.synced_folder ".", "/vagrant"
+
+  config.vm.provision "shell", inline: <<-SHELL
+    set -e
+    cd /vagrant
+    # 綁 0.0.0.0 是為了讓宿主機能透過 forwarded_port 連進來；正式環境請綁內網 IP
+    bash install-redis.sh --method apt --bind 0.0.0.0 --password redis-vm-pass --maxmemory 512mb
+  SHELL
+end

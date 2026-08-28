@@ -1,6 +1,22 @@
 # Redis 實戰教學專案
 
 > 從零到一，14 個模組帶你掌握 Redis 全棧技能 — 涵蓋資料結構、快取模式、串流處理、搜尋引擎、高可用架構到認證考試準備。
+>
+> 程式碼（Java / Spring Boot）之外，還有一套**給初學者的中文手冊**與**在真實環境驗證過的佈署腳本**：
+> 架構設計、容器與 VM 兩種佈署、效能最佳化、應用場景、維運安全——每支腳本與設定都實際跑過，驗證方式見 [驗證方式與實測紀錄](#驗證方式與實測紀錄)。
+
+## 手冊導覽（docs/）
+
+| 章節 | 內容 | 適合 |
+|---|---|---|
+| [01 架構設計](docs/01-architecture.md) | 單執行緒事件迴圈、記憶體模型與編碼、過期淘汰、持久化、**單機 / 主從 / Sentinel / Cluster 選型決策樹**、容量規劃、反模式 | 開始寫程式前 |
+| [02 容器佈署](docs/02-deploy-container.md) | 三套 Docker Compose 環境（單機 + 監控、Sentinel、Cluster）、容器特有的坑（volume、記憶體限制、核心參數、DNS 與固定 IP）、驗證 | Docker 使用者 |
+| [03 VM 佈署](docs/03-deploy-vm.md) | **一鍵腳本**（apt / dnf / 原始碼編譯自動選擇）、手動 runbook、systemd、OS 調校、多台 VM 主從與 Sentinel、Vagrant、實測紀錄 | 正式環境 |
+| [04 效能最佳化](docs/04-performance-tuning.md) | benchmark 實測數據、Pipeline、慢指令、大 key / 熱 key、記憶體最佳化、持久化對延遲的影響、監控門檻、檢查清單 | 上線前後 |
+| [05 應用場景](docs/05-use-cases.md) | 16 個模式用 `redis-cli` 走一遍：快取（穿透 / 擊穿 / 雪崩）、Session、計數、排行榜、分散式鎖、限流、佇列、Pub/Sub、Geo、Bitmap、布隆、冪等、延遲佇列… | 想知道怎麼用 |
+| [06 維運與安全](docs/06-operations.md) | ACL、TLS、監控告警、備份還原、日常操作、升級、**錯誤訊息對照表**、上線檢查清單 | 維運 |
+
+**建議路線**：初學者 → 01 → 02（把單機環境跑起來）→ 05（邊看邊敲指令）→ Module 01–06 程式碼 → 04 → 03 / 06。
 
 ## 技術棧
 
@@ -8,10 +24,10 @@
 |------|------|------|
 | Java | 25 (LTS) | 最新長期支援版 |
 | Spring Boot | 4.0.2 | Spring Data Redis + Web + Actuator |
-| Redis | 8 | 內建 Search、JSON、TimeSeries、Bloom 模組 |
+| Redis | 8（實測 8.10.1） | 內建 Search、JSON、TimeSeries、Bloom、Vector Set 模組 |
 | Gradle | 8.x | Kotlin DSL + Version Catalog |
 | Testcontainers | 2.0.3 | 整合測試自動啟動 Redis 容器 |
-| Docker Compose | v2 | Redis + RedisInsight + Prometheus + Grafana |
+| Docker Compose | v2+（實測 v5.4） | Redis + RedisInsight + redis_exporter + Prometheus + Grafana |
 
 ## 先決條件
 
@@ -81,26 +97,17 @@ brew services stop redis
 redis-cli ping
 ```
 
-### 方式三：Linux（Ubuntu / Debian）安裝
+### 方式三：Linux VM 安裝（Ubuntu / Debian / RHEL / Fedora…）
+
+本專案提供一鍵佈署腳本，會自動選擇路線（Ubuntu / Debian 走 `packages.redis.io` 官方倉庫；其他發行版原始碼編譯），
+並完成 systemd 服務、OS 調校與驗證：
 
 ```bash
-# 添加官方 Redis APT 倉庫
-sudo apt-get update
-sudo apt-get install -y lsb-release curl gpg
-curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-
-# 安裝 Redis
-sudo apt-get update
-sudo apt-get install -y redis
-
-# 啟動服務
-sudo systemctl start redis-server
-sudo systemctl enable redis-server
-
-# 驗證
-redis-cli ping
+sudo deploy/vm/install-redis.sh --password 'your-password'     # 全部自動；DRY_RUN=1 先看會做什麼
+sudo scripts/verify-vm.sh -a 'your-password'                    # 19 項檢查（systemd、權限、OS 參數、重啟不丟資料）
 ```
+
+手動安裝的逐步 runbook、每個設定的理由、多台 VM 組主從 / Sentinel、Vagrant 練習環境，見 [docs/03-deploy-vm.md](docs/03-deploy-vm.md)。
 
 ### 方式四：Windows 安裝
 
@@ -382,10 +389,13 @@ redis-tutorial/
 ├── docker-compose-cluster.yml    # Cluster 叢集架構（6 節點）
 ├── docker/                       # Docker 配置檔
 │   ├── redis/redis.conf
-│   ├── sentinel/
+│   ├── sentinel/                 # Sentinel 設定（固定 IP，見 docs/02）
 │   ├── cluster/
 │   ├── prometheus/
-│   └── grafana/
+│   └── grafana/                  # 資料來源 + 自動載入的 Redis 儀表板
+├── docs/                         # 中文手冊：01 架構 02 容器 03 VM 04 效能 05 場景 06 維運
+├── deploy/vm/                    # VM 一鍵佈署：install-redis.sh、redis.conf 範本、systemd unit、sysctl、Vagrantfile
+├── scripts/                      # 驗證與維運腳本（見下方「驗證方式與實測紀錄」）
 ├── common/                       # 共用模組（RedisConfig、測試基底類別、Quiz 框架）
 ├── module-01-getting-started/    # 模組 01 ~ 14
 ├── module-02-data-structures/
@@ -842,43 +852,56 @@ assertThat(result.passed()).isTrue();
 
 ## Docker 環境
 
+三套環境互相獨立（各有 Compose `name:`），細節與踩坑紀錄見 [docs/02-deploy-container.md](docs/02-deploy-container.md)。
+
 ### 基本環境
 
 ```bash
-docker compose up -d
+docker compose up -d                        # 全部
+docker compose up -d redis redis-insight    # 只要 Redis + GUI
+./scripts/verify-single.sh                  # 驗證
 ```
-
-啟動的服務：
 
 | 服務 | 埠號 | 說明 |
 |------|------|------|
-| Redis 8 | 6379 | 主要 Redis 實例 |
+| Redis 8 | 6379 | 主要 Redis 實例（含全部模組） |
 | RedisInsight | 5540 | Web 管理介面 |
-| Prometheus | 9090 | 指標收集 |
-| Grafana | 3000 | 視覺化儀表板（帳密 admin/admin） |
+| redis_exporter | 9121 | Prometheus 指標 |
+| Prometheus | 9090（`PROMETHEUS_PORT` 可改） | 指標收集 |
+| Grafana | 3000（`GRAFANA_PORT` 可改） | 儀表板（帳密 admin/admin，自動載入「Redis Tutorial」） |
 
 ### Sentinel 環境
 
 ```bash
 docker compose -f docker-compose-sentinel.yml up -d
+./scripts/verify-sentinel.sh                # 含停掉 Master → 自動故障轉移 → 舊 Master 回歸的完整測試
 ```
 
-| 服務 | 埠號 |
-|------|------|
-| Master | 6379 |
-| Replica 1 | 6380 |
-| Replica 2 | 6381 |
-| Sentinel 1-3 | 26379-26381 |
+| 服務 | 埠號 | 固定 IP |
+|------|------|------|
+| Master | 6379 | 172.28.0.10 |
+| Replica 1 / 2 | 6380 / 6381 | 172.28.0.11 / .12 |
+| Sentinel 1–3 | 26379–26381 | 172.28.0.21–.23 |
+
+> 為什麼固定 IP：Master 容器停掉後 Docker DNS 解析不到名稱，Sentinel 會進入 TILT 模式而不切換——實測踩到，已修正。
 
 ### Cluster 環境
 
 ```bash
-docker compose -f docker-compose-cluster.yml up -d
+docker compose -f docker-compose-cluster.yml up -d      # redis-cluster-init 自動建立 3 主 3 從
+./scripts/verify-cluster.sh
+docker exec -it redis-node-1 redis-cli -c -p 7001       # 在容器內操作（-c 自動跟隨 MOVED）
 ```
 
-| 服務 | 埠號 |
-|------|------|
-| Node 1-6 | 7001-7006 |
+| 服務 | 埠號 | 固定 IP |
+|------|------|------|
+| Node 1–6 | 7001–7006（bus 17001–17006） | 172.29.0.11–.16 |
+
+### 一次驗證三套
+
+```bash
+./scripts/verify-all.sh        # 依序啟動 → 驗證 → 關閉；需要上述埠號空著
+```
 
 ## Gradle 指令速查
 
@@ -904,6 +927,17 @@ docker compose -f docker-compose-cluster.yml up -d
 
 ## 常見問題
 
+### `docker compose up` 說 port is already allocated
+
+宿主機已有東西占用 6379 / 9090 / 3000（另一套 Compose、VM 安裝的 Redis、其他監控）。
+`ss -tlnp | grep 6379` 找出來停掉；Prometheus / Grafana 可用 `PROMETHEUS_PORT=19090 GRAFANA_PORT=13000 docker compose up -d` 改埠。
+基本環境與 Sentinel 環境都用 6379，不要同時啟動。
+
+### `./gradlew` 報 `Could not find or load main class org.gradle.wrapper.GradleWrapperMain`
+
+`gradle/wrapper/gradle-wrapper.jar` 沒進版控（`.gitignore` 的 `*.jar` 規則曾蓋掉例外）。已修正並提交 jar；若仍遇到：
+`curl -fsSL -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.14.0/gradle/wrapper/gradle-wrapper.jar`。
+
 ### Testcontainers 無法啟動容器
 
 確認 Docker 正在運行，並檢查 `~/.testcontainers.properties`：
@@ -924,6 +958,61 @@ testcontainers.reuse.enable=true
 ### Lua 腳本中 Redis 8 RESP3 回傳格式問題
 
 Redis 8 預設使用 RESP3 協定，浮點數在 Lua 中會以 `{ok = value}` 格式回傳。若遇到 `table: 0x...` 錯誤，需在 Lua 腳本中檢查 `type(val) == 'table'` 並提取 `val.ok`。
+
+## 驗證方式與實測紀錄
+
+本專案的每一支腳本、每一份設定檔都在下列環境**實際執行過**，任何人 clone 下來都能用同樣的指令重現。
+
+### 驗證環境
+
+| | 環境 |
+|---|---|
+| 宿主機 / VM | WSL2（Hyper-V）上的 Fedora Linux 44、Linux 6.18、16 vCPU / 15 GB、systemd 259 |
+| 容器 | Docker Engine 29.6、Docker Compose v5.4、`redis:8` = 8.10.1 |
+| Java | JDK 25（Gradle toolchain 自動下載）、Gradle 8.14、Testcontainers |
+| 乾淨 Ubuntu | `ubuntu:24.04` 容器（驗證 apt 路線） |
+| 日期 | 2026-08-28 |
+
+### 怎麼驗證
+
+| 對象 | 指令 | 檢查什麼 |
+|---|---|---|
+| Java 專案 | `./gradlew test` | 14 個模組 444 個測試（Testcontainers 自動起 Redis） |
+| 單機容器環境 | `docker compose up -d && ./scripts/verify-single.sh` | 容器 healthy、`redis.conf` 每項設定生效、模組已載入、**重啟後資料仍在**、RedisInsight / exporter / Prometheus / Grafana 儀表板 |
+| Sentinel 環境 | `docker compose -f docker-compose-sentinel.yml up -d && ./scripts/verify-sentinel.sh` | 拓撲、複寫、**停掉 Master → 自動切換 → 新 Master 有資料可寫 → 舊 Master 回歸變 Replica 並同步** |
+| Cluster 環境 | `docker compose -f docker-compose-cluster.yml up -d && ./scripts/verify-cluster.sh` | 16384 slot、MOVED / CROSSSLOT / hash tag、**停掉一個 Master → Replica 接手 → 資料仍在 → 回歸變 Replica** |
+| 三套一起 | `./scripts/verify-all.sh` | 上面三項，依序啟動 / 驗證 / 關閉 |
+| VM 佈署 | `sudo deploy/vm/install-redis.sh …` 後 `sudo scripts/verify-vm.sh -a 密碼` | systemd（Type=notify、redis 帳號、LimitNOFILE）、設定檔權限、OS 參數（overcommit / THP / somaxconn）、日誌無 WARNING、**`systemctl restart` 後資料仍在** |
+| 資料型別與應用場景 | `./scripts/smoke-test.sh [-a 密碼]` | 9 種資料型別 + 交易 / Lua + 分散式鎖 + 限流，28 項斷言 |
+| 健康檢查 | `./scripts/health-check.sh` | 記憶體、持久化、連線、slowlog、複寫；exit code 可接監控 |
+| 效能 | `./scripts/benchmark.sh` | 基準 / Pipeline / value 大小 / 延遲分佈 |
+| 備份 | `./scripts/backup.sh -d 目錄` | BGSAVE → 複製 → `redis-check-rdb` |
+
+### 實測結果
+
+| 項目 | 結果 |
+|---|---|
+| `./gradlew test` | **444 / 444 通過**（M01 40、M02 73、M03 50、M04 39、M05 26、M06 29、M07 23、M08 19、M09 20、M10 21、M11 15、M12 15、M13 17、M14 57） |
+| `verify-all.sh` | **全部通過**：單機 11 / 11、Sentinel 18 / 18、Cluster 14 / 14 |
+| Sentinel 故障轉移 | 停掉 Master 後 **7 秒** `+switch-master`（quorum 3/2、leader 選舉 → 升級 Replica → 重新設定其他 Replica） |
+| Cluster 故障轉移 | 停掉一個 Master 後 **9 秒** Replica 升級、`cluster_state:ok`、資料可讀 |
+| 監控堆疊 | Prometheus `redis_up=1`、Grafana 自動載入「Redis Tutorial」14 個面板 |
+| VM（Fedora，原始碼編譯） | `install-redis.sh` 7 步全綠，編譯 31 秒；`verify-vm.sh` **19 / 19**；`systemctl restart` 後 **214 ms** 恢復服務 |
+| VM（Ubuntu 24.04，apt） | `packages.redis.io` 安裝 8.10.1，JSON / Search / Bloom / TimeSeries 模組自動 `loadmodule`；`smoke-test.sh` 28 / 28 |
+| `smoke-test.sh` | 28 / 28 |
+| `benchmark.sh`（VM） | 無 pipeline：SET 140k / GET 151k ops/s；Pipeline 16：SET 952k / GET 1.43M；100 KB value：SET 5.7k；p50 0.079 ms |
+
+### 這次驗證抓到並修正的問題
+
+| 問題 | 症狀 | 修正 |
+|---|---|---|
+| Sentinel 環境起不來 | 三個 Sentinel 啟動即崩潰：`Can't resolve instance hostname` | `sentinel.conf` 改用固定 IP；Compose 指派 `172.28.0.0/24` |
+| Sentinel 不做故障轉移 | Master 停掉後 Sentinel 進入 `+tilt`（DNS 阻塞） | 同上（用 IP 就不查 DNS） |
+| 三個 Sentinel 共用一份 bind-mount 設定檔 | 互相覆蓋、檔案被改成 root 擁有 | `entrypoint` 先複製到容器內再啟動 |
+| Cluster 停掉一個 Master 後整個叢集 `fail` | `cluster-announce-ip` 用容器名稱，節點消失後 DNS 阻塞主執行緒，Replica 無法升級 | 改固定 IP `172.29.0.0/24` |
+| `./gradlew` 無法執行 | `gradle-wrapper.jar` 被 `.gitignore` 的 `*.jar` 排除 | 調整規則順序並提交 jar |
+| 主 Compose 的 `prometheus` / `grafana` 容器名稱 | 與同機其他專案衝突 | 改名 `redis-prometheus` / `redis-grafana`，埠號可用環境變數覆寫 |
+| Redis 8.10 原始碼 `make` 連模組一起編 | 需要 LLVM 21 + Rust，一般 VM 沒有 | 腳本改 `make build redis` 只編核心 |
 
 ## 學習建議
 

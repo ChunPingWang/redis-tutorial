@@ -1,0 +1,38 @@
+# Redis systemd unit（由 deploy/vm/install-redis.sh 安裝到 /etc/systemd/system/redis.service）
+# 佔位符：__PREFIX__ __CONF__ __DATA_DIR__ __LOG_DIR__
+[Unit]
+Description=Redis In-Memory Data Store
+Documentation=https://redis.io/docs/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Redis 啟動完成（資料載入完畢）後會透過 sd_notify 通知（redis.conf: supervised systemd）
+Type=notify
+User=redis
+Group=redis
+ExecStart=__PREFIX__/bin/redis-server __CONF__
+# SIGTERM 會讓 Redis 做 graceful shutdown（先把 RDB/AOF 寫完再退出）
+ExecStop=/bin/kill -s TERM $MAINPID
+TimeoutStartSec=90
+# 給 Redis 足夠時間把資料寫完；資料量大時請加大
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=5s
+
+# 資源限制：連線數多時 open files 一定要拉高（Redis 會依 maxclients 自行調整，但上限由這裡決定）
+LimitNOFILE=65536
+# 讓 OOM killer 優先殺別人
+OOMScoreAdjust=-800
+
+# 安全強化：Redis 只需要讀寫資料目錄與日誌目錄
+RuntimeDirectory=redis
+RuntimeDirectoryMode=0750
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=__DATA_DIR__ __LOG_DIR__
+
+[Install]
+WantedBy=multi-user.target

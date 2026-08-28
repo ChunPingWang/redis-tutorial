@@ -1,0 +1,16 @@
+# 關閉 Transparent Huge Pages（THP）：開著會讓 fork 後的 copy-on-write 延遲暴增
+# Redis 啟動日誌會直接警告：「WARNING you have Transparent Huge Pages (THP) support enabled」
+[Unit]
+Description=Disable Transparent Huge Pages for Redis
+DefaultDependencies=no
+Before=redis.service
+ConditionPathExists=/sys/kernel/mm/transparent_hugepage/enabled
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/enabled'
+ExecStart=/bin/sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/defrag'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

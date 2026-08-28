@@ -1,3 +1,13 @@
+# Redis 8 + RedisInsight + redis_exporter + Prometheus + Grafana（單機開發環境）
+#
+# 啟動：docker compose up -d            只要 Redis：docker compose up -d redis redis-insight
+# 驗證：./scripts/verify-single.sh
+# 停止：docker compose down            （加 -v 連資料一起刪）
+#
+# 埠號：Redis 6379、RedisInsight 5540、redis_exporter 9121、Prometheus 9090、Grafana 3000
+# 若 9090/3000 已被其他服務占用，用環境變數改：PROMETHEUS_PORT=19090 GRAFANA_PORT=13000 docker compose up -d
+name: redis-tutorial
+
 services:
   redis:
     image: redis:8
@@ -8,6 +18,7 @@ services:
       - redis-data:/data
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -19,6 +30,9 @@ services:
     container_name: redis-insight
     ports:
       - "5540:5540"
+    volumes:
+      - redis-insight-data:/data
+    restart: unless-stopped
     depends_on:
       redis:
         condition: service_healthy
@@ -36,25 +50,30 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
+    container_name: redis-prometheus
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
-      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    # Linux 上讓容器能連到宿主機的 Spring Boot（host.docker.internal:8080）
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - redis-exporter
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
+    container_name: redis-grafana
     ports:
-      - "3000:3000"
+      - "${GRAFANA_PORT:-3000}:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
-      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
 
 volumes:
   redis-data:
+  redis-insight-data:

@@ -1,0 +1,10 @@
+# Grafana 啟動時自動載入 docker/grafana/dashboards/*.json
+apiVersion: 1
+providers:
+  - name: redis-tutorial
+    folder: Redis
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

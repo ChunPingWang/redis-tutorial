@@ -1,3 +1,16 @@
+# Redis Cluster 練習環境：3 Master + 3 Replica（port 7001–7006，bus port 17001–17006）
+#
+# 啟動：docker compose -f docker-compose-cluster.yml up -d   （redis-cluster-init 會自動建立叢集）
+# 驗證：./scripts/verify-cluster.sh
+# 連線：docker exec -it redis-node-1 redis-cli -c -p 7001    （-c：自動跟隨 MOVED 重新導向）
+# 停止：docker compose -f docker-compose-cluster.yml down -v
+#
+# 為什麼要固定 IP？
+#   節點之間靠 cluster-announce-ip 互連。若用容器名稱，某個節點一停、Docker DNS 就解析不到它，
+#   其他節點的主執行緒會被 DNS 查詢卡住，整個叢集變慢、故障轉移也不會發生（實測踩到的坑）。
+#   所以每個節點在 172.29.0.0/24 有固定 IP；從宿主機連線請在容器內操作或用可路由的 IP。
+name: redis-cluster
+
 services:
   redis-node-1:
     image: redis:8-alpine
@@ -7,7 +20,11 @@ services:
       - "17001:17001"
     volumes:
       - ./docker/cluster/redis-cluster.conf:/usr/local/etc/redis/redis.conf
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7001", "--cluster-announce-ip", "redis-node-1", "--cluster-announce-port", "7001", "--cluster-announce-bus-port", "17001"]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7001", "--cluster-announce-ip", "172.29.0.11", "--cluster-announce-port", "7001", "--cluster-announce-bus-port", "17001"]
+    restart: unless-stopped
+    networks:
+      cluster-net:
+        ipv4_address: 172.29.0.11
 
   redis-node-2:
     image: redis:8-alpine
@@ -17,7 +34,11 @@ services:
       - "17002:17002"
     volumes:
       - ./docker/cluster/redis-cluster.conf:/usr/local/etc/redis/redis.conf
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7002", "--cluster-announce-ip", "redis-node-2", "--cluster-announce-port", "7002", "--cluster-announce-bus-port", "17002"]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7002", "--cluster-announce-ip", "172.29.0.12", "--cluster-announce-port", "7002", "--cluster-announce-bus-port", "17002"]
+    restart: unless-stopped
+    networks:
+      cluster-net:
+        ipv4_address: 172.29.0.12
 
   redis-node-3:
     image: redis:8-alpine
@@ -27,7 +48,11 @@ services:
       - "17003:17003"
     volumes:
       - ./docker/cluster/redis-cluster.conf:/usr/local/etc/redis/redis.conf
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7003", "--cluster-announce-ip", "redis-node-3", "--cluster-announce-port", "7003", "--cluster-announce-bus-port", "17003"]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7003", "--cluster-announce-ip", "172.29.0.13", "--cluster-announce-port", "7003", "--cluster-announce-bus-port", "17003"]
+    restart: unless-stopped
+    networks:
+      cluster-net:
+        ipv4_address: 172.29.0.13
 
   redis-node-4:
     image: redis:8-alpine
@@ -37,7 +62,11 @@ services:
       - "17004:17004"
     volumes:
       - ./docker/cluster/redis-cluster.conf:/usr/local/etc/redis/redis.conf
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7004", "--cluster-announce-ip", "redis-node-4", "--cluster-announce-port", "7004", "--cluster-announce-bus-port", "17004"]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7004", "--cluster-announce-ip", "172.29.0.14", "--cluster-announce-port", "7004", "--cluster-announce-bus-port", "17004"]
+    restart: unless-stopped
+    networks:
+      cluster-net:
+        ipv4_address: 172.29.0.14
 
   redis-node-5:
     image: redis:8-alpine
@@ -47,7 +76,11 @@ services:
       - "17005:17005"
     volumes:
       - ./docker/cluster/redis-cluster.conf:/usr/local/etc/redis/redis.conf
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7005", "--cluster-announce-ip", "redis-node-5", "--cluster-announce-port", "7005", "--cluster-announce-bus-port", "17005"]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7005", "--cluster-announce-ip", "172.29.0.15", "--cluster-announce-port", "7005", "--cluster-announce-bus-port", "17005"]
+    restart: unless-stopped
+    networks:
+      cluster-net:
+        ipv4_address: 172.29.0.15
 
   redis-node-6:
     image: redis:8-alpine
@@ -57,7 +90,11 @@ services:
       - "17006:17006"
     volumes:
       - ./docker/cluster/redis-cluster.conf:/usr/local/etc/redis/redis.conf
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7006", "--cluster-announce-ip", "redis-node-6", "--cluster-announce-port", "7006", "--cluster-announce-bus-port", "17006"]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--port", "7006", "--cluster-announce-ip", "172.29.0.16", "--cluster-announce-port", "7006", "--cluster-announce-bus-port", "17006"]
+    restart: unless-stopped
+    networks:
+      cluster-net:
+        ipv4_address: 172.29.0.16
 
   redis-cluster-init:
     image: redis:8-alpine
@@ -72,6 +109,15 @@ services:
     command: >
       sh -c "sleep 5 &&
       redis-cli --cluster create
-      redis-node-1:7001 redis-node-2:7002 redis-node-3:7003
-      redis-node-4:7004 redis-node-5:7005 redis-node-6:7006
+      172.29.0.11:7001 172.29.0.12:7002 172.29.0.13:7003
+      172.29.0.14:7004 172.29.0.15:7005 172.29.0.16:7006
       --cluster-replicas 1 --cluster-yes"
+    networks:
+      - cluster-net
+
+networks:
+  cluster-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/24

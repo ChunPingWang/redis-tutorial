@@ -1,74 +1,127 @@
+# Redis Sentinel 高可用練習環境：1 Master + 2 Replica + 3 Sentinel
+#
+# 啟動：docker compose -f docker-compose-sentinel.yml up -d
+# 驗證：./scripts/verify-sentinel.sh          （含自動故障轉移測試）
+# 停止：docker compose -f docker-compose-sentinel.yml down -v
+#
+# 為什麼要固定 IP？
+#   Master 容器停掉後 Docker DNS 就解析不到它的名稱，Sentinel 會因 DNS 阻塞進入 TILT 模式、
+#   暫停故障轉移。給每個節點固定 IP、Sentinel 用 IP 監控，故障轉移才會正常運作。
+
+name: redis-sentinel
+
 services:
   redis-master:
     image: redis:8-alpine
     container_name: redis-master
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
-      - ./docker/sentinel/redis-master.conf:/usr/local/etc/redis/redis.conf
+      - ./docker/sentinel/redis-master.conf:/usr/local/etc/redis/redis.conf:ro
+      - sentinel-master-data:/data
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      sentinel-net:
+        ipv4_address: 172.28.0.10
 
   redis-replica-1:
     image: redis:8-alpine
     container_name: redis-replica-1
+    restart: unless-stopped
     ports:
       - "6380:6379"
     volumes:
-      - ./docker/sentinel/redis-replica.conf:/usr/local/etc/redis/redis.conf
+      - ./docker/sentinel/redis-replica.conf:/usr/local/etc/redis/redis.conf:ro
+      - sentinel-replica1-data:/data
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     depends_on:
       redis-master:
         condition: service_healthy
+    networks:
+      sentinel-net:
+        ipv4_address: 172.28.0.11
 
   redis-replica-2:
     image: redis:8-alpine
     container_name: redis-replica-2
+    restart: unless-stopped
     ports:
       - "6381:6379"
     volumes:
-      - ./docker/sentinel/redis-replica.conf:/usr/local/etc/redis/redis.conf
+      - ./docker/sentinel/redis-replica.conf:/usr/local/etc/redis/redis.conf:ro
+      - sentinel-replica2-data:/data
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     depends_on:
       redis-master:
         condition: service_healthy
+    networks:
+      sentinel-net:
+        ipv4_address: 172.28.0.12
 
+  # Sentinel 會改寫自己的設定檔：先複製到容器內可寫位置再啟動，
+  # 三個 Sentinel 才不會共用（並互相覆蓋）同一個 bind-mount 檔案。
   sentinel-1:
     image: redis:8-alpine
     container_name: sentinel-1
+    restart: unless-stopped
     ports:
       - "26379:26379"
     volumes:
-      - ./docker/sentinel/sentinel.conf:/usr/local/etc/redis/sentinel.conf
-    command: ["redis-sentinel", "/usr/local/etc/redis/sentinel.conf"]
+      - ./docker/sentinel/sentinel.conf:/tmp/sentinel.conf:ro
+    entrypoint: ["sh", "-c", "cp /tmp/sentinel.conf /data/sentinel.conf && exec redis-sentinel /data/sentinel.conf"]
     depends_on:
       redis-master:
         condition: service_healthy
+    networks:
+      sentinel-net:
+        ipv4_address: 172.28.0.21
 
   sentinel-2:
     image: redis:8-alpine
     container_name: sentinel-2
+    restart: unless-stopped
     ports:
       - "26380:26379"
     volumes:
-      - ./docker/sentinel/sentinel.conf:/usr/local/etc/redis/sentinel.conf
-    command: ["redis-sentinel", "/usr/local/etc/redis/sentinel.conf"]
+      - ./docker/sentinel/sentinel.conf:/tmp/sentinel.conf:ro
+    entrypoint: ["sh", "-c", "cp /tmp/sentinel.conf /data/sentinel.conf && exec redis-sentinel /data/sentinel.conf"]
     depends_on:
       redis-master:
         condition: service_healthy
+    networks:
+      sentinel-net:
+        ipv4_address: 172.28.0.22
 
   sentinel-3:
     image: redis:8-alpine
     container_name: sentinel-3
+    restart: unless-stopped
     ports:
       - "26381:26379"
     volumes:
-      - ./docker/sentinel/sentinel.conf:/usr/local/etc/redis/sentinel.conf
-    command: ["redis-sentinel", "/usr/local/etc/redis/sentinel.conf"]
+      - ./docker/sentinel/sentinel.conf:/tmp/sentinel.conf:ro
+    entrypoint: ["sh", "-c", "cp /tmp/sentinel.conf /data/sentinel.conf && exec redis-sentinel /data/sentinel.conf"]
     depends_on:
       redis-master:
         condition: service_healthy
+    networks:
+      sentinel-net:
+        ipv4_address: 172.28.0.23
+
+networks:
+  sentinel-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
+
+volumes:
+  sentinel-master-data:
+  sentinel-replica1-data:
+  sentinel-replica2-data:
