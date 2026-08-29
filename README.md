@@ -9,16 +9,18 @@
 
 | 章節 | 內容 | 適合 |
 |---|---|---|
+| [00 需求分析與設計決策](docs/00-requirements-and-design.md) | **動手前**：12 個需求訪談問題、需求 → 設計決策對照表、逐項決策的理由與常見錯誤、電商完整範例、ADR 範本、設計評審檢查清單 | 架任何東西之前 |
 | [01 架構設計](docs/01-architecture.md) | 單執行緒事件迴圈、記憶體模型與編碼、過期淘汰、持久化、**單機 / 主從 / Sentinel / Cluster 選型決策樹**、容量規劃、反模式 | 開始寫程式前 |
 | [02 容器佈署](docs/02-deploy-container.md) | 三套 Docker Compose 環境（單機 + 監控、Sentinel、Cluster）、容器特有的坑（volume、記憶體限制、核心參數、DNS 與固定 IP）、驗證 | Docker 使用者 |
 | [03 VM 佈署](docs/03-deploy-vm.md) | **一鍵腳本**（apt / dnf / 原始碼編譯自動選擇）、手動 runbook、systemd、OS 調校、多台 VM 主從與 Sentinel、Vagrant、實測紀錄 | 正式環境 |
 | [04 效能最佳化](docs/04-performance-tuning.md) | benchmark 實測數據、Pipeline、慢指令、大 key / 熱 key、記憶體最佳化、持久化對延遲的影響、監控門檻、檢查清單 | 上線前後 |
 | [05 應用場景](docs/05-use-cases.md) | 16 個模式用 `redis-cli` 走一遍：快取（穿透 / 擊穿 / 雪崩）、Session、計數、排行榜、分散式鎖、限流、佇列、Pub/Sub、Geo、Bitmap、布隆、冪等、延遲佇列… | 想知道怎麼用 |
 | [06 維運與安全](docs/06-operations.md) | ACL、TLS、監控告警、備份還原、日常操作、升級、**錯誤訊息對照表**、上線檢查清單 | 維運 |
+| [07 問題排查](docs/07-troubleshooting.md) | 排查心法與固定順序、第一分鐘五個指令、**12 個可親手模擬的故障情境**（OOM、大 key、連線耗盡、無 TTL、MISCONF、FLUSHALL、熱 key、AOF 損毀、Sentinel 不切換、CLUSTERDOWN、NOPERM、Replica 斷線）各附排查順序、根因、修復、預防 | 出事時與出事前演練 |
 
 每一章的每個重點都依「**為什麼**（不做會發生什麼）→ **怎麼做** → **具體指令 / 設定**」的順序寫，先有前提再有做法。
 
-**建議路線**：初學者 → 01 → 02（把單機環境跑起來）→ 05（邊看邊敲指令）→ Module 01–06 程式碼 → 04 → 03 / 06。
+**建議路線**：初學者 → 01 → 02（把單機環境跑起來）→ 05（邊看邊敲指令）→ Module 01–06 程式碼 → 04 → 03 / 06 → 07（用 `scripts/scenario.sh` 把每個情境弄壞再修好）。要設計正式環境時從 00 開始。
 
 ## 技術棧
 
@@ -395,7 +397,7 @@ redis-tutorial/
 │   ├── cluster/
 │   ├── prometheus/
 │   └── grafana/                  # 資料來源 + 自動載入的 Redis 儀表板
-├── docs/                         # 中文手冊：01 架構 02 容器 03 VM 04 效能 05 場景 06 維運
+├── docs/                         # 中文手冊：00 需求與設計 01 架構 02 容器 03 VM 04 效能 05 場景 06 維運 07 排查
 ├── deploy/vm/                    # VM 一鍵佈署：install-redis.sh、redis.conf 範本、systemd unit、sysctl、Vagrantfile
 ├── scripts/                      # 驗證與維運腳本（見下方「驗證方式與實測紀錄」）
 ├── common/                       # 共用模組（RedisConfig、測試基底類別、Quiz 框架）
@@ -984,6 +986,7 @@ Redis 8 預設使用 RESP3 協定，浮點數在 Lua 中會以 `{ok = value}` �
 | Sentinel 環境 | `docker compose -f docker-compose-sentinel.yml up -d && ./scripts/verify-sentinel.sh` | 拓撲、複寫、**停掉 Master → 自動切換 → 新 Master 有資料可寫 → 舊 Master 回歸變 Replica 並同步** |
 | Cluster 環境 | `docker compose -f docker-compose-cluster.yml up -d && ./scripts/verify-cluster.sh` | 16384 slot、MOVED / CROSSSLOT / hash tag、**停掉一個 Master → Replica 接手 → 資料仍在 → 回歸變 Replica** |
 | 三套一起 | `./scripts/verify-all.sh` | 上面三項，依序啟動 / 驗證 / 關閉 |
+| 故障情境模擬 | `./scripts/scenario.sh inject N` / `reset N`；自動驗證 `./scripts/verify-scenarios.sh` | 12 個情境各驗三件事：症狀真的出現、排查指令看得到根因、還原後恢復（docs/07） |
 | VM 佈署 | `sudo deploy/vm/install-redis.sh …` 後 `sudo scripts/verify-vm.sh -a 密碼` | systemd（Type=notify、redis 帳號、LimitNOFILE）、設定檔權限、OS 參數（overcommit / THP / somaxconn）、日誌無 WARNING、**`systemctl restart` 後資料仍在** |
 | 資料型別與應用場景 | `./scripts/smoke-test.sh [-a 密碼]` | 9 種資料型別 + 交易 / Lua + 分散式鎖 + 限流，28 項斷言 |
 | 健康檢查 | `./scripts/health-check.sh` | 記憶體、持久化、連線、slowlog、複寫；exit code 可接監控 |
@@ -996,6 +999,7 @@ Redis 8 預設使用 RESP3 協定，浮點數在 Lua 中會以 `{ok = value}` �
 |---|---|
 | `./gradlew test` | **444 / 444 通過**（M01 40、M02 73、M03 50、M04 39、M05 26、M06 29、M07 23、M08 19、M09 20、M10 21、M11 15、M12 15、M13 17、M14 57） |
 | `verify-all.sh` | **全部通過**：單機 11 / 11、Sentinel 18 / 18、Cluster 14 / 14 |
+| `verify-scenarios.sh` | **42 / 42 通過**：12 個故障情境注入 → 症狀斷言 → 還原斷言（單機 9 個、Sentinel 2 個、Cluster 1 個） |
 | Sentinel 故障轉移 | 停掉 Master 後 **7 秒** `+switch-master`（quorum 3/2、leader 選舉 → 升級 Replica → 重新設定其他 Replica） |
 | Cluster 故障轉移 | 停掉一個 Master 後 **9 秒** Replica 升級、`cluster_state:ok`、資料可讀 |
 | 監控堆疊 | Prometheus `redis_up=1`、Grafana 自動載入「Redis Tutorial」14 個面板 |
