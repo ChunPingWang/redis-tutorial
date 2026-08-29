@@ -9,7 +9,7 @@
 
 | 章節 | 內容 | 適合 |
 |---|---|---|
-| [00 需求分析與設計決策](docs/00-requirements-and-design.md) | **動手前**：12 個需求訪談問題、需求 → 設計決策對照表、逐項決策的理由與常見錯誤、電商完整範例、ADR 範本、設計評審檢查清單 | 架任何東西之前 |
+| [00 需求分析與設計決策](docs/00-requirements-and-design.md) | **動手前**：12 個需求訪談問題、**量化的決策條件表（每個門檻為什麼是這個數字）、七個考量面向與陷阱、依序判斷的決策流程**、需求 → 設計決策對照表、逐項決策的理由與常見錯誤、電商完整範例、ADR 範本、設計評審檢查清單 | 架任何東西之前 |
 | [01 架構設計](docs/01-architecture.md) | 單執行緒事件迴圈、記憶體模型與編碼、過期淘汰、持久化、**單機 / 主從 / Sentinel / Cluster 選型決策樹**、容量規劃、反模式 | 開始寫程式前 |
 | [02 容器佈署](docs/02-deploy-container.md) | 三套 Docker Compose 環境（單機 + 監控、Sentinel、Cluster）、容器特有的坑（volume、記憶體限制、核心參數、DNS 與固定 IP）、驗證 | Docker 使用者 |
 | [03 VM 佈署](docs/03-deploy-vm.md) | **一鍵腳本**（apt / dnf / 原始碼編譯自動選擇）、手動 runbook、systemd、OS 調校、多台 VM 主從與 Sentinel、Vagrant、實測紀錄 | 正式環境 |
